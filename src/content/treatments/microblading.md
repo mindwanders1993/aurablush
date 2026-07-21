@@ -3,6 +3,7 @@ title: "Nano Microblading"
 category: "pmu-brows"
 price: "$450"
 duration: "2 Hrs"
+image: "/images/microblading.jpg"
 description: "Define and shape with hyper-realistic hair strokes for perfectly full and natural-looking eyebrows."
 benefits:
   - "Custom shape designed to flatter your facial structure"

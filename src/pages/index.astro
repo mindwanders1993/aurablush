@@ -38,6 +38,7 @@ const featuredTreatments = allTreatments.slice(0, 3);
             duration={treatment.data.duration}
             description={treatment.data.description}
             slug={treatment.id}
+            image={treatment.data.image}
           />
         ))}
       </div>
@@ -67,8 +68,7 @@ const featuredTreatments = allTreatments.slice(0, 3);
           </ul>
         </div>
         <div class="trust-image glass-panel">
-          <!-- Placeholder for studio image -->
-          <div class="image-placeholder"></div>
+          <img src="/images/studio.jpg" alt="Aura Blush Studio Interior" class="image-real" />
         </div>
       </div>
     </div>
@@ -85,7 +85,7 @@ const featuredTreatments = allTreatments.slice(0, 3);
     align-items: center;
     text-align: center;
     min-height: 85vh;
-    background: linear-gradient(180deg, var(--color-surface-offset) 0%, var(--color-bg) 100%);
+    background: linear-gradient(180deg, rgba(252, 242, 240, 0.8) 0%, rgba(255, 252, 251, 0.9) 100%), url('/images/hero.jpg') center/cover no-repeat;
     overflow: hidden;
   }
 
@@ -253,10 +253,10 @@ const featuredTreatments = allTreatments.slice(0, 3);
     padding: 1rem;
   }
   
-  .image-placeholder {
+  .image-real {
     width: 100%;
     height: 100%;
+    object-fit: cover;
     border-radius: var(--radius-md);
-    background: linear-gradient(135deg, var(--color-divider), var(--color-surface-offset));
   }
 </style>

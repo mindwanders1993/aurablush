@@ -1,0 +1,103 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import { getCollection } from 'astro:content';
+
+const allReviews = await getCollection('reviews');
+---
+
+<Layout title="Client Reviews | Aura Blush Studio">
+  <div class="page-header">
+    <SectionHeading title="Client Love" subtitle="Reviews" />
+    <p class="header-description">Don't just take our word for it. Read what our beautiful clients have to say about their experience.</p>
+  </div>
+
+  <section class="reviews-section">
+    <div class="container">
+      <div class="reviews-grid">
+        {allReviews.map((review) => (
+          <div class="review-card glass-panel">
+            <div class="stars">{'★'.repeat(review.data.rating)}{'☆'.repeat(5 - review.data.rating)}</div>
+            <p class="review-text">"{review.data.text}"</p>
+            <div class="review-footer">
+              <span class="reviewer-name">{review.data.name}</span>
+              <span class="review-service">{review.data.service}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .page-header {
+    padding: 6rem 1.5rem 3rem;
+    text-align: center;
+    background-color: var(--color-surface-offset);
+  }
+
+  .header-description {
+    max-width: 600px;
+    margin: 0 auto;
+    color: var(--color-text-muted);
+    font-size: 1.1rem;
+  }
+  
+  .reviews-section {
+    padding: 5rem 0;
+  }
+  
+  .container {
+    max-width: var(--max-width-wide);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+  
+  .reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+  
+  .review-card {
+    padding: 2rem;
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  .stars {
+    color: var(--color-accent);
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    letter-spacing: 0.2rem;
+  }
+  
+  .review-text {
+    font-style: italic;
+    color: var(--color-text);
+    margin-bottom: 2rem;
+    flex-grow: 1;
+  }
+  
+  .review-footer {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--color-divider);
+    padding-top: 1rem;
+  }
+  
+  .reviewer-name {
+    font-weight: 600;
+    color: var(--color-accent-dark);
+  }
+  
+  .review-service {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+</style>

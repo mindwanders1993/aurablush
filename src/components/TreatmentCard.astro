@@ -5,14 +5,14 @@ interface Props {
   duration: string;
   description: string;
   slug: string;
+  image?: string;
 }
 
-const { title, price, duration, description, slug } = Astro.props;
+const { title, price, duration, description, slug, image } = Astro.props;
 ---
 
 <a href={`/treatments/${slug}`} class="treatment-card glass-panel">
-  <div class="card-image-placeholder">
-    <!-- Placeholder for treatment image -->
+  <div class="card-image-placeholder" style={image ? `background: url(${image}) center/cover no-repeat;` : ''}>
     <span class="category-pill">PMU</span>
   </div>
   <div class="card-content">

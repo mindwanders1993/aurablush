@@ -3,6 +3,7 @@ title: "Lip Blush Tattoo"
 category: "pmu-lips"
 price: "$500"
 duration: "2 Hrs"
+image: "/images/lip-blush.jpg"
 description: "A subtle wash of color to enhance your natural lip shape, symmetry, and color for a fuller look."
 benefits:
   - "Restores pale or aging lips to a youthful tint"

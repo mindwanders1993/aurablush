@@ -26,6 +26,7 @@ const allTreatments = await getCollection('treatments');
             duration={treatment.data.duration}
             description={treatment.data.description}
             slug={treatment.id}
+            image={treatment.data.image}
           />
         ))}
       </div>

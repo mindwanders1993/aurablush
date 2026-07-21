@@ -36,8 +36,7 @@ const { Content } = await render(treatment);
         
         <a href="/contact" class="btn-book">Book This Treatment</a>
       </div>
-      <div class="hero-image glass-panel">
-        <!-- Image placeholder -->
+      <div class="hero-image glass-panel" style={treatment.data.image ? `background: url(${treatment.data.image}) center/cover no-repeat;` : ''}>
       </div>
     </div>
   </div>
