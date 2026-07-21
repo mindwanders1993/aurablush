@@ -1,0 +1,231 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+---
+
+<Layout title="Contact Us | Aura Blush Studio">
+  <div class="page-header">
+    <SectionHeading title="Get In Touch" subtitle="Contact & Booking" />
+    <p class="header-description">Ready to enhance your natural beauty? Send us a booking inquiry or visit our studio.</p>
+  </div>
+
+  <section class="contact-section">
+    <div class="container">
+      <div class="contact-grid">
+        <div class="contact-info">
+          <div class="info-card glass-panel">
+            <h3>Visit The Studio</h3>
+            <p>123 Beauty Lane, Suite 100<br/>New York, NY 10001</p>
+            
+            <h3 class="mt">Get In Touch</h3>
+            <p><a href="mailto:hello@aurablush.com">hello@aurablush.com</a><br/><a href="tel:+12125551234">(212) 555-1234</a></p>
+            
+            <h3 class="mt">Opening Hours</h3>
+            <ul class="hours-list">
+              <li><span>Tuesday - Friday</span><span>10:00 AM - 7:00 PM</span></li>
+              <li><span>Saturday</span><span>9:00 AM - 5:00 PM</span></li>
+              <li><span>Sunday - Monday</span><span>Closed</span></li>
+            </ul>
+          </div>
+          
+          <div class="map-mock glass-panel">
+            <div class="map-pin"></div>
+            <p>Interactive Map Placeholder</p>
+          </div>
+        </div>
+
+        <div class="booking-form-container glass-panel">
+          <h3>Request an Appointment</h3>
+          <p class="text-muted small">Fill out the form below and our concierge will contact you within 24 hours to confirm your date and time.</p>
+          
+          <form class="booking-form" onsubmit="event.preventDefault(); alert('Booking request sent successfully!');">
+            <div class="form-group">
+              <label for="name">Full Name</label>
+              <input type="text" id="name" required placeholder="Jane Doe" />
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required placeholder="jane@example.com" />
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" required placeholder="(555) 000-0000" />
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="service">Interested Service</label>
+              <select id="service" required>
+                <option value="" disabled selected>Select a treatment...</option>
+                <option value="microblading">Nano Microblading</option>
+                <option value="lip-blush">Lip Blush Tattoo</option>
+                <option value="lash-lift">Lash Lift & Tint</option>
+                <option value="other">Other / Consultation</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="message">Additional Notes or Questions</label>
+              <textarea id="message" rows="4" placeholder="Are you looking to correct previous PMU work? Let us know here..."></textarea>
+            </div>
+            
+            <button type="submit" class="btn-submit">Send Booking Request</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .page-header {
+    padding: 6rem 1.5rem 3rem;
+    text-align: center;
+    background-color: var(--color-surface-offset);
+  }
+
+  .header-description {
+    max-width: 600px;
+    margin: 0 auto;
+    color: var(--color-text-muted);
+    font-size: 1.1rem;
+  }
+  
+  .contact-section {
+    padding: 5rem 0;
+  }
+  
+  .container {
+    max-width: var(--max-width-wide);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+  
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  
+  @media (min-width: 900px) {
+    .contact-grid {
+      grid-template-columns: 1fr 1.5fr;
+    }
+  }
+
+  .info-card, .booking-form-container, .map-mock {
+    padding: 2.5rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 2rem;
+  }
+
+  h3 {
+    color: var(--color-accent-dark);
+    margin-bottom: 1rem;
+  }
+  
+  .mt {
+    margin-top: 2rem;
+  }
+
+  .hours-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .hours-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed var(--color-divider);
+    color: var(--color-text-muted);
+  }
+
+  .map-mock {
+    height: 250px;
+    background: linear-gradient(135deg, var(--color-surface-offset), var(--color-divider));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+  }
+  
+  .map-pin {
+    width: 20px;
+    height: 20px;
+    background-color: var(--color-accent);
+    border-radius: 50%;
+    margin-bottom: 1rem;
+  }
+
+  .small {
+    margin-bottom: 2rem;
+  }
+
+  .booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  @media (min-width: 600px) {
+    .form-row {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+  
+  input, select, textarea {
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--color-accent);
+  }
+  
+  .btn-submit {
+    background-color: var(--color-accent);
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: var(--radius-full);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    margin-top: 1rem;
+  }
+  
+  .btn-submit:hover {
+    background-color: var(--color-accent-hover);
+    transform: translateY(-2px);
+  }
+</style>

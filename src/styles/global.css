@@ -1,0 +1,143 @@
+/* ============================================================
+   AURA BLUSH STUDIO — Global Design System
+   "Warm Blush & Rosewood" 
+   ============================================================ */
+
+/* ── Tokens: Light Mode ───────────────────────────────────── */
+:root {
+  --color-bg:             #fffcfb;
+  --color-surface:        #ffffff;
+  --color-surface-offset: #fcf2f0;
+  --color-divider:        #f5deda;
+  --color-accent:         #d47a82;
+  --color-accent-hover:   #bc5d66;
+  --color-accent-light:   #f9ebec;
+  --color-accent-dark:    #5c2a30;
+  --color-text:           #2c1b1d;
+  --color-text-muted:     #786164;
+  --color-text-faint:     #bda2a5;
+
+  --font-display: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  --font-body:    'Outfit', 'Montserrat', 'Work Sans', system-ui, sans-serif;
+
+  --radius-sm:  6px;
+  --radius-md:  12px;
+  --radius-lg:  24px;
+  --radius-full: 9999px;
+
+  --shadow-card: 0 4px 12px rgba(92, 42, 48, 0.05), 0 2px 4px rgba(92, 42, 48, 0.03);
+  --shadow-hover: 0 12px 32px rgba(92, 42, 48, 0.08), 0 4px 12px rgba(92, 42, 48, 0.04);
+
+  --max-width-prose: 720px;
+  --max-width-wide:  1200px;
+}
+
+/* ── Tokens: Dark Mode (Velvet Rose) ──────────────────────── */
+[data-theme="dark"] {
+  --color-bg:             #1c1112;
+  --color-surface:        #24181a;
+  --color-surface-offset: #2d1e20;
+  --color-divider:        #3d2629;
+  --color-accent:         #e29198;
+  --color-accent-hover:   #f0adb3;
+  --color-accent-light:   #3a1e21;
+  --color-accent-dark:    #fcecec;
+  --color-text:           #fcf5f5;
+  --color-text-muted:     #baa4a6;
+  --color-text-faint:     #6d5356;
+  
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ── Reset ────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* ── Base ─────────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ── Typography ───────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  color: var(--color-text);
+  line-height: 1.1;
+  font-weight: 500;
+  margin: 0 0 0.8rem 0;
+}
+
+h1 { font-size: clamp(2.5rem, 5vw, 4.5rem); }
+h2 { font-size: clamp(2rem, 4vw, 3rem); }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+
+p {
+  margin: 0 0 1.2rem 0;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+/* ── Layout ───────────────────────────────────────────────── */
+main {
+  width: 100%;
+  max-width: var(--max-width-wide);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+section {
+  padding: 5rem 0;
+}
+
+/* ── Utilities ────────────────────────────────────────────── */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+[data-theme="dark"] .glass-panel {
+  background: rgba(36, 24, 26, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+/* Animations */
+.fade-in-up {
+  animation: fadeInUp 0.8s ease forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

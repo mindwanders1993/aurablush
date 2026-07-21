@@ -1,11 +1,262 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import TreatmentCard from '../components/TreatmentCard.astro';
+import { getCollection } from 'astro:content';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// Fetch treatments for the featured section
+const allTreatments = await getCollection('treatments');
+const featuredTreatments = allTreatments.slice(0, 3);
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Aura Blush Studio | Premier PMU & Beauty">
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content fade-in-up">
+      <h1>Enhance Your Natural Beauty, Timelessly.</h1>
+      <p>Premier Permanent Makeup & Advanced Beauty Treatments for an Effortless, Radiant You</p>
+      <div class="hero-actions">
+        <a href="/contact" class="btn-primary">Book Appointment</a>
+        <a href="/treatments" class="btn-secondary">Explore Services</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Treatments Section -->
+  <section class="featured-treatments bg-surface">
+    <div class="container">
+      <SectionHeading 
+        title="Our Signature Treatments" 
+        subtitle="Services"
+      />
+      
+      <div class="treatments-grid">
+        {featuredTreatments.map((treatment) => (
+          <TreatmentCard 
+            title={treatment.data.title}
+            price={treatment.data.price}
+            duration={treatment.data.duration}
+            description={treatment.data.description}
+            slug={treatment.id}
+          />
+        ))}
+      </div>
+      
+      <div class="view-all-container">
+        <a href="/treatments" class="btn-outline">View All Treatments</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- The Aura Blush Standard (Trust Section) -->
+  <section class="trust-section">
+    <div class="container">
+      <div class="trust-grid">
+        <div class="trust-content fade-in-up">
+          <SectionHeading 
+            title="The Aura Blush Standard" 
+            subtitle="Why Choose Us"
+            alignment="left"
+          />
+          <p class="trust-text">At Aura Blush Studio, your safety and satisfaction are our absolute highest priorities. We combine medical-grade hygiene protocols with world-class artistry.</p>
+          <ul class="trust-list">
+            <li><strong>100% Disposable Tools:</strong> We never reuse needles or microblades.</li>
+            <li><strong>Premium Pigments:</strong> Vegan, cruelty-free, and MRI-safe inks.</li>
+            <li><strong>Master Certified Artists:</strong> Rigorously trained in advanced techniques.</li>
+            <li><strong>Fully Licensed:</strong> Operating above all state health department standards.</li>
+          </ul>
+        </div>
+        <div class="trust-image glass-panel">
+          <!-- Placeholder for studio image -->
+          <div class="image-placeholder"></div>
+        </div>
+      </div>
+    </div>
+  </section>
 </Layout>
+
+<style>
+  /* Hero Section */
+  .hero {
+    position: relative;
+    padding: 12rem 1.5rem 8rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 85vh;
+    background: linear-gradient(180deg, var(--color-surface-offset) 0%, var(--color-bg) 100%);
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    left: -10%;
+    width: 50vw;
+    height: 50vw;
+    background: radial-gradient(circle, var(--color-divider) 0%, transparent 70%);
+    border-radius: 50%;
+    opacity: 0.6;
+    z-index: 0;
+  }
+  
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -10%;
+    right: -10%;
+    width: 60vw;
+    height: 60vw;
+    background: radial-gradient(circle, var(--color-accent-light) 0%, transparent 70%);
+    border-radius: 50%;
+    opacity: 0.5;
+    z-index: 0;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 10;
+    max-width: 800px;
+  }
+
+  .hero h1 {
+    color: var(--color-accent-dark);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero p {
+    font-size: 1.2rem;
+    color: var(--color-text-muted);
+    margin-bottom: 3rem;
+    max-width: 600px;
+    margin-inline: auto;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary, .btn-secondary, .btn-outline {
+    padding: 0.8rem 2rem;
+    border-radius: var(--radius-full);
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary {
+    background-color: var(--color-accent);
+    color: white;
+    box-shadow: var(--shadow-card);
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-accent-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .btn-secondary {
+    background-color: var(--color-surface);
+    color: var(--color-accent-dark);
+    border: 1px solid var(--color-divider);
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--color-surface-offset);
+    transform: translateY(-2px);
+  }
+  
+  .btn-outline {
+    display: inline-block;
+    border: 1px solid var(--color-accent);
+    color: var(--color-accent);
+    margin-top: 3rem;
+  }
+  
+  .btn-outline:hover {
+    background-color: var(--color-accent);
+    color: white;
+  }
+
+  .container {
+    max-width: var(--max-width-wide);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .bg-surface {
+    background-color: var(--color-surface);
+  }
+
+  .treatments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+  }
+  
+  .view-all-container {
+    text-align: center;
+  }
+
+  /* Trust Section */
+  .trust-section {
+    padding: 8rem 0;
+  }
+
+  .trust-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .trust-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .trust-text {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    line-height: 1.8;
+  }
+
+  .trust-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .trust-list li {
+    position: relative;
+    padding-left: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .trust-list li::before {
+    content: '✦';
+    position: absolute;
+    left: 0;
+    color: var(--color-accent);
+  }
+  
+  .trust-image {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    height: 500px;
+    padding: 1rem;
+  }
+  
+  .image-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--color-divider), var(--color-surface-offset));
+  }
+</style>

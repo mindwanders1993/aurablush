@@ -1,0 +1,128 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+---
+
+<Layout title="Our Story | Aura Blush Studio">
+  <div class="page-header">
+    <SectionHeading title="The Aura Blush Story" subtitle="About Us" />
+    <p class="header-description">Discover the passion, artistry, and strict safety standards behind our premium permanent makeup studio.</p>
+  </div>
+
+  <section class="about-section">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-image glass-panel">
+          <!-- Image placeholder for studio interior -->
+        </div>
+        
+        <div class="about-content">
+          <h3>Elevating Permanent Makeup</h3>
+          <p>Founded in 2024, Aura Blush Studio was born out of a desire to bridge the gap between traditional tattooing and high-end cosmetic artistry. We believe that permanent makeup should not look like a tattoo—it should look like flawlessly applied makeup that simply never washes off.</p>
+          <p>Our philosophy is rooted in **subtle enhancement**. We don't believe in one-size-fits-all stencils. Every set of brows, lips, and eyeliner is custom-mapped to your unique bone structure and facial symmetry.</p>
+          
+          <div class="stats-grid">
+            <div class="stat">
+              <span class="number">5+</span>
+              <span class="label">Years Experience</span>
+            </div>
+            <div class="stat">
+              <span class="number">100%</span>
+              <span class="label">Disposable Tools</span>
+            </div>
+            <div class="stat">
+              <span class="number">5★</span>
+              <span class="label">Client Rating</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .page-header {
+    padding: 6rem 1.5rem 3rem;
+    text-align: center;
+    background-color: var(--color-surface-offset);
+  }
+
+  .header-description {
+    max-width: 600px;
+    margin: 0 auto;
+    color: var(--color-text-muted);
+    font-size: 1.1rem;
+  }
+  
+  .about-section {
+    padding: 5rem 0;
+  }
+  
+  .container {
+    max-width: var(--max-width-wide);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+  
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+  
+  @media (min-width: 900px) {
+    .about-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .about-image {
+    height: 500px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--color-divider), transparent);
+  }
+
+  .about-content h3 {
+    color: var(--color-accent-dark);
+    margin-bottom: 1.5rem;
+  }
+  
+  .about-content p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+    color: var(--color-text);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-divider);
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .number {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    color: var(--color-accent);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    font-weight: 600;
+  }
+</style>

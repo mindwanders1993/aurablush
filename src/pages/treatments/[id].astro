@@ -1,0 +1,253 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import SectionHeading from '../../components/SectionHeading.astro';
+
+export async function getStaticPaths() {
+  const treatments = await getCollection('treatments');
+  return treatments.map(treatment => ({
+    params: { id: treatment.id },
+    props: { treatment },
+  }));
+}
+
+const { treatment } = Astro.props;
+const { Content } = await render(treatment);
+---
+
+<Layout title={`${treatment.data.title} | Aura Blush Studio`}>
+  <div class="treatment-hero">
+    <div class="hero-container">
+      <div class="hero-text">
+        <span class="category">{treatment.data.category.replace('-', ' ').toUpperCase()}</span>
+        <h1>{treatment.data.title}</h1>
+        <p class="lead">{treatment.data.description}</p>
+        
+        <div class="quick-facts glass-panel">
+          <div class="fact">
+            <span class="label">Price</span>
+            <span class="value">{treatment.data.price}</span>
+          </div>
+          <div class="fact">
+            <span class="label">Duration</span>
+            <span class="value">{treatment.data.duration}</span>
+          </div>
+        </div>
+        
+        <a href="/contact" class="btn-book">Book This Treatment</a>
+      </div>
+      <div class="hero-image glass-panel">
+        <!-- Image placeholder -->
+      </div>
+    </div>
+  </div>
+
+  <section class="treatment-details">
+    <div class="container">
+      <div class="content-grid">
+        <div class="main-content">
+          <SectionHeading title="About The Procedure" alignment="left" />
+          <div class="prose">
+            <Content />
+          </div>
+          
+          <div class="benefits-box">
+            <h3>Why You'll Love It</h3>
+            <ul>
+              {treatment.data.benefits.map((benefit: string) => (
+                <li>{benefit}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        
+        <aside class="sidebar">
+          <div class="care-box pre-care glass-panel">
+            <h3>Pre-Care Instructions</h3>
+            <p class="small text-muted">To ensure the best healed results, please follow these guidelines prior to your appointment:</p>
+            <ul>
+              {treatment.data.preCare.map((item: string) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </div>
+          
+          <div class="care-box after-care glass-panel">
+            <h3>After-Care Instructions</h3>
+            <p class="small text-muted">Proper aftercare is 50% of the result. Follow strictly:</p>
+            <ul>
+              {treatment.data.afterCare.map((item: string) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .treatment-hero {
+    background-color: var(--color-surface-offset);
+    padding: 6rem 1.5rem 4rem;
+  }
+  
+  .hero-container {
+    max-width: var(--max-width-wide);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+  
+  @media (min-width: 900px) {
+    .hero-container {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .category {
+    color: var(--color-accent);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    font-size: 0.85rem;
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  .lead {
+    font-size: 1.1rem;
+    color: var(--color-text-muted);
+    margin-bottom: 2rem;
+  }
+
+  .quick-facts {
+    display: flex;
+    gap: 2rem;
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 2rem;
+    display: inline-flex;
+  }
+
+  .fact {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .fact .label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .fact .value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--color-accent-dark);
+  }
+
+  .btn-book {
+    display: inline-block;
+    background-color: var(--color-accent);
+    color: white;
+    padding: 1rem 2.5rem;
+    border-radius: var(--radius-full);
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  .btn-book:hover {
+    background-color: var(--color-accent-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card);
+  }
+  
+  .hero-image {
+    height: 400px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--color-divider), transparent);
+  }
+
+  .treatment-details {
+    padding: 5rem 0;
+  }
+
+  .container {
+    max-width: var(--max-width-wide);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4rem;
+  }
+
+  @media (min-width: 900px) {
+    .content-grid {
+      grid-template-columns: 2fr 1fr;
+    }
+  }
+
+  .prose {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 3rem;
+  }
+  
+  .benefits-box {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-divider);
+    padding: 2rem;
+    border-radius: var(--radius-md);
+  }
+  
+  .benefits-box h3, .care-box h3 {
+    color: var(--color-accent-dark);
+    margin-bottom: 1rem;
+    font-family: var(--font-display);
+  }
+
+  .benefits-box ul, .care-box ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .benefits-box li, .care-box li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .benefits-box li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--color-accent);
+    font-weight: bold;
+  }
+  
+  .care-box li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--color-accent);
+  }
+
+  .care-box {
+    padding: 2rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 2rem;
+  }
+
+  .small {
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+</style>
