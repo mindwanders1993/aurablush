@@ -16,13 +16,13 @@ export const POST: APIRoute = async ({ request }) => {
       body = await request.json();
     }
 
-    const { name, email, phone, service, message } = body || {};
+    const { name, instagram, email, phone, service, message } = body || {};
 
-    if (!name || (!email && !phone)) {
+    if (!name || (!instagram && !phone && !email)) {
       return new Response(
         JSON.stringify({
           success: false,
-          error: 'Please provide your name and at least an email or phone number.'
+          error: 'Please provide your name, Instagram handle, and phone number.'
         }),
         {
           status: 400,
@@ -30,6 +30,14 @@ export const POST: APIRoute = async ({ request }) => {
         }
       );
     }
+
+    const escapeHtml = (str: any) =>
+      String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    const igHandle = instagram ? (instagram.startsWith('@') ? instagram : `@${instagram}`) : (email || 'Not provided');
 
     const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN;
     const telegramChatId = process.env.TELEGRAM_CHAT_ID;
@@ -40,18 +48,18 @@ export const POST: APIRoute = async ({ request }) => {
     // 1. Dispatch to Telegram Bot
     if (telegramBotToken && telegramChatId) {
       try {
-        const telegramText =
-`🌸 *New Booking Request — Aura Blush Studio*
+        const telegramHtml =
+`🌸 <b>New Booking Request — Aura Blush Studio</b>
 
-👤 *Client:* ${name}
-📧 *Email:* ${email || 'Not provided'}
-📱 *Phone:* ${phone || 'Not provided'}
-✨ *Treatment:* ${service || 'General Consultation'}
+👤 <b>Client:</b> ${escapeHtml(name)}
+📸 <b>Instagram:</b> ${escapeHtml(igHandle)}
+📱 <b>Phone:</b> ${escapeHtml(phone || 'Not provided')}
+✨ <b>Treatment:</b> ${escapeHtml(service || 'General Consultation')}
 
-📝 *Notes & Questions:*
-${message || 'No additional notes'}
+📝 <b>Notes & Questions:</b>
+${escapeHtml(message || 'No additional notes')}
 
-⏱️ *Submitted:* ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} IST`;
+⏱️ <i>Submitted: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} IST</i>`;
 
         const telegramRes = await fetch(
           `https://api.telegram.org/bot${telegramBotToken}/sendMessage`,
@@ -60,8 +68,8 @@ ${message || 'No additional notes'}
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               chat_id: telegramChatId,
-              text: telegramText,
-              parse_mode: 'Markdown'
+              text: telegramHtml,
+              parse_mode: 'HTML'
             })
           }
         );
@@ -91,7 +99,7 @@ ${message || 'No additional notes'}
                 color: 14457498, // Rose accent (#dc789a)
                 fields: [
                   { name: '👤 Client Name', value: String(name), inline: true },
-                  { name: '📧 Email', value: String(email || 'N/A'), inline: true },
+                  { name: '📸 Instagram', value: String(igHandle), inline: true },
                   { name: '📱 Phone', value: String(phone || 'N/A'), inline: true },
                   { name: '✨ Treatment', value: String(service || 'General Consultation'), inline: true },
                   { name: '📝 Notes', value: String(message || 'None') }
