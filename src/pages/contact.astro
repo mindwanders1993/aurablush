@@ -127,17 +127,9 @@ const hours = site.hours;
 
         <div class="booking-form-container">
           <h2>Request an appointment</h2>
-          {site.formAccessKey ? (
-            <p class="form-intro text-muted">
-              Fill this out and we'll come back to you to confirm a date and time.
-            </p>
-          ) : (
-            <p class="form-offline">
-              <strong>Online booking isn't live yet.</strong> The quickest way to reach
-              us today is a DM on <a href={site.social.instagram.href} target="_blank" rel="noopener noreferrer">Instagram</a> —
-              it goes straight to Roshni.
-            </p>
-          )}
+          <p class="form-intro text-muted">
+            Fill this out and we'll come back to you within 24 hours to confirm a date and time.
+          </p>
 
           <form class="booking-form" novalidate>
             <div class="form-group">
@@ -163,11 +155,11 @@ const hours = site.hours;
                 {grouped.map(({ category, items }) => (
                   <optgroup label={category.label}>
                     {items.map(t => (
-                      <option value={t.id}>{t.data.title}</option>
+                      <option value={t.data.title}>{t.data.title}</option>
                     ))}
                   </optgroup>
                 ))}
-                <option value="consultation">Other / general consultation</option>
+                <option value="General Consultation">Other / general consultation</option>
               </select>
               {screened.length > 0 && (
                 <p class="field-note">
@@ -192,11 +184,7 @@ const hours = site.hours;
     </div>
   </section>
 
-  <script is:inline define:vars={{ formKey: site.formAccessKey }}>
-    // Real submission via Web3Forms when an access key is configured. With no
-    // key, the form must NOT claim success — it tells the truth and points at
-    // Instagram, because a booking request that goes nowhere is worse than no
-    // form at all.
+  <script is:inline>
     (() => {
       const form = document.querySelector('.booking-form');
       if (!form) return;
@@ -216,42 +204,45 @@ const hours = site.hours;
           return;
         }
 
-        if (!formKey) {
-          say(
-            'Online booking isn\u2019t connected yet \u2014 this form can\u2019t reach us. ' +
-            'Please send us a DM on Instagram and we\u2019ll get straight back to you.',
-            'error'
-          );
-          return;
-        }
-
         const original = button.textContent;
         button.disabled = true;
         button.textContent = 'Sending\u2026';
         say('', 'pending');
 
         try {
-          const body = new FormData(form);
-          body.append('access_key', formKey);
-          body.append('subject', 'New booking request \u2014 Aura Blush');
-          const res = await fetch('https://api.web3forms.com/submit', {
-            method: 'POST',
-            body,
-          });
-          const data = await res.json();
-          if (!res.ok || !data.success) throw new Error(data.message || 'Submission failed');
+          const formData = new FormData(form);
+          const payload = {
+            name: formData.get('name')?.toString().trim(),
+            email: formData.get('email')?.toString().trim(),
+            phone: formData.get('phone')?.toString().trim(),
+            service: formData.get('service')?.toString().trim(),
+            message: formData.get('message')?.toString().trim()
+          };
 
-          const name = form.querySelector('#name').value.trim();
+          const res = await fetch('/api/contact', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          });
+
+          const data = await res.json();
+          if (!res.ok || !data.success) {
+            throw new Error(data.error || 'Submission failed');
+          }
+
+          const name = payload.name;
           say(
             'Thanks' + (name ? ', ' + name.split(' ')[0] : '') +
-            ' \u2014 your request is in. We\u2019ll come back to you within 24 hours.',
+            ' \u2014 your booking request is in! We\u2019ll be in touch within 24 hours.',
             'success'
           );
           form.reset();
         } catch (err) {
           say(
-            'Something went wrong sending that. Please try again, or send us a DM ' +
-            'on Instagram and we\u2019ll pick it up there.',
+            (err && err.message) ||
+            'Something went wrong sending that. Please try again, or message us on Instagram.',
             'error'
           );
         } finally {

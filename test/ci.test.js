@@ -2,7 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert';
 
-const distDir = path.resolve('dist');
+const baseDistDir = path.resolve('dist');
+const distDir = fs.existsSync(path.join(baseDistDir, 'client')) 
+  ? path.join(baseDistDir, 'client') 
+  : baseDistDir;
 const treatmentsDir = path.resolve('src/content/treatments');
 
 let passed = 0;
@@ -91,6 +94,14 @@ it('Layout HTML emits all 4 category custom properties (--cat-*)', () => {
 it('scrub-engine.js exists in public and dist', () => {
   assert(fs.existsSync(path.resolve('public/world/scrub-engine.js')), 'public/world/scrub-engine.js missing');
   assert(fs.existsSync(path.join(distDir, 'world/scrub-engine.js')), 'dist/world/scrub-engine.js missing');
+});
+
+console.log('\n--- 4. Inbound Booking & Telegram Notification Route ---');
+it('src/pages/api/contact.ts exists with Telegram bot integration', () => {
+  const contactApi = fs.readFileSync(path.resolve('src/pages/api/contact.ts'), 'utf8');
+  assert(contactApi.includes('TELEGRAM_BOT_TOKEN'), 'TELEGRAM_BOT_TOKEN environment check missing');
+  assert(contactApi.includes('api.telegram.org/bot'), 'Telegram sendMessage API call missing');
+  assert(contactApi.includes('export const prerender = false'), 'prerender = false missing for serverless execution');
 });
 
 console.log('\n===============================================');
