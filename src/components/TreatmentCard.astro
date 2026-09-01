@@ -1,30 +1,59 @@
 ---
+import TreatmentArt from './TreatmentArt.astro';
+import { getCategory } from '../data/categories';
+
+/**
+ * The card now takes the whole treatment entry rather than five loose strings.
+ * With ten treatments across four families, the things a visitor needs off a
+ * card changed: which family it belongs to, how long the commitment is, and
+ * whether it is gated behind medical screening.
+ */
 interface Props {
   title: string;
+  category: string;
   price: string;
   duration: string;
+  sessions: string;
   description: string;
   slug: string;
   image?: string;
+  medical?: boolean;
 }
 
-const { title, price, duration, description, slug, image } = Astro.props;
+const { title, category, price, duration, sessions, description, slug, image, medical = false } =
+  Astro.props;
+
+const cat = getCategory(category);
 ---
 
-<a href={`/treatments/${slug}`} class="treatment-card glass-panel">
-  <div class="card-image-placeholder" style={image ? `background: url(${image}) center/cover no-repeat;` : ''}>
-    <span class="category-pill">PMU</span>
+<a href={`/treatments/${slug}`} class="treatment-card" data-cat={cat.id}>
+  <div class="card-media">
+    {image
+      ? <img src={image} alt="" loading="lazy" decoding="async" />
+      : <TreatmentArt category={cat.id} />}
+    <span class="chip chip--dot card-chip">{cat.label}</span>
   </div>
+
   <div class="card-content">
     <h3>{title}</h3>
     <p class="description">{description}</p>
-    <div class="card-footer">
-      <div class="details">
-        <span class="price">{price}</span>
-        <span class="divider">•</span>
-        <span class="duration">{duration}</span>
+
+    <dl class="card-meta">
+      <div>
+        <dt>Per session</dt>
+        <dd>{duration}</dd>
       </div>
-      <span class="btn-text">Learn More &rarr;</span>
+      <div>
+        <dt>Course</dt>
+        <dd>{sessions}</dd>
+      </div>
+    </dl>
+
+    {medical && <span class="chip chip--medical card-medical">Medical screening required</span>}
+
+    <div class="card-footer">
+      <span class="price">{price}</span>
+      <span class="btn-text">Learn more &rarr;</span>
     </div>
   </div>
 </a>
@@ -33,88 +62,121 @@ const { title, price, duration, description, slug, image } = Astro.props;
   .treatment-card {
     display: flex;
     flex-direction: column;
+    height: 100%;
     border-radius: var(--radius-md);
     overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-divider);
     box-shadow: var(--shadow-card);
-    height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   }
 
   .treatment-card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-hover);
+    border-color: var(--cat-line);
   }
 
-  .card-image-placeholder {
-    background: linear-gradient(135deg, var(--color-surface-offset), var(--color-divider));
-    height: 200px;
+  .card-media {
     position: relative;
-    display: flex;
-    align-items: flex-start;
-    padding: 1rem;
+    height: 190px;
+    background-color: var(--color-surface-offset);
   }
 
-  .category-pill {
-    background-color: var(--color-accent-light);
-    color: var(--color-accent-dark);
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.3rem 0.8rem;
-    border-radius: var(--radius-full);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+  .card-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* The chip sits over photography as often as over generated art, so it
+     carries its own legible ground rather than relying on the image. */
+  .card-chip {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-card);
   }
 
   .card-content {
-    padding: 1.5rem;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    padding: 1.6rem;
   }
 
   h3 {
-    margin-bottom: 0.5rem;
-    color: var(--color-accent-dark);
+    font-size: 1.4rem;
+    margin-bottom: 0.6rem;
+    color: var(--color-text);
   }
 
   .description {
     color: var(--color-text-muted);
-    font-size: 0.95rem;
+    font-size: 0.94rem;
+    line-height: 1.65;
     margin-bottom: 1.5rem;
-    flex-grow: 1;
+  }
+
+  /* Pushed to the bottom of the card so a row of cards with differently sized
+     descriptions still lines its meta and prices up. */
+  .card-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: auto 0 0;
+    padding: 1.1rem 0;
+    border-top: 1px solid var(--color-divider);
+  }
+
+  .card-meta div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+
+  .card-meta dt {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-text-faint);
+  }
+
+  .card-meta dd {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: var(--color-text-muted);
   }
 
   .card-footer {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-top: auto;
-    padding-top: 1rem;
+    align-items: baseline;
+    gap: 1rem;
+    padding-top: 1.1rem;
     border-top: 1px solid var(--color-divider);
   }
 
-  .details {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 500;
-  }
-
   .price {
-    color: var(--color-text);
-  }
-
-  .divider {
-    color: var(--color-text-faint);
-  }
-
-  .duration {
-    color: var(--color-text-muted);
-    font-size: 0.9rem;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--color-accent-dark);
+    line-height: 1.2;
   }
 
   .btn-text {
+    flex: none;
+    font-size: 0.85rem;
     font-weight: 500;
-    font-size: 0.9rem;
+    color: var(--cat);
+  }
+
+  .card-medical {
+    align-self: flex-start;
+    margin-bottom: 1.25rem;
   }
 </style>

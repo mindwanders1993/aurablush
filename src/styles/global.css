@@ -100,11 +100,12 @@ a:hover {
 }
 
 /* ── Layout ───────────────────────────────────────────────── */
+/* `main` is deliberately unconstrained. Width is owned by `.container` inside
+   each section, so the tinted section bands (.bg-surface / .bg-offset, the
+   treatment hero, the alternating menu families) reach the viewport edges
+   instead of stopping short of them. */
 main {
   width: 100%;
-  max-width: var(--max-width-wide);
-  margin: 0 auto;
-  padding: 0 1.5rem;
 }
 
 section {
@@ -128,6 +129,20 @@ section {
   color: var(--color-text-muted);
 }
 
+/* Visually hidden, still announced by screen readers and read by crawlers.
+   Used for the homepage <h1>, which the scroll engine cannot provide. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Animations */
 .fade-in-up {
   animation: fadeInUp 0.8s ease forwards;
@@ -140,4 +155,365 @@ section {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ============================================================
+   SHARED PRIMITIVES
+   Extracted from the per-page scoped styles, which each carried
+   their own copy of .container / .page-header / .btn-*. Defined
+   once here so every page inherits the same rhythm.
+   ============================================================ */
+
+/* ── Layout ───────────────────────────────────────────────── */
+.container {
+  max-width: var(--max-width-wide);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.section {
+  padding: clamp(4rem, 9vw, 7.5rem) 0;
+}
+
+.bg-surface { background-color: var(--color-surface); }
+.bg-offset  { background-color: var(--color-surface-offset); }
+
+/* ── Page header ──────────────────────────────────────────── */
+/* Every page but the homepage opens with one of these. It echoes the
+   flight's chrome: quiet ground, wide-tracked eyebrow, oversized display
+   title, a short accent rule instead of a heavy tinted block. */
+.page-header {
+  position: relative;
+  text-align: center;
+  padding: clamp(7rem, 14vw, 10rem) 1.5rem clamp(3rem, 6vw, 4.5rem);
+  overflow: hidden;
+}
+
+.page-header::before {
+  content: '';
+  position: absolute;
+  inset: -60% 0 auto;
+  height: 150%;
+  background: radial-gradient(ellipse 60% 50% at 50% 40%, var(--color-accent-light) 0%, transparent 70%);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.page-header > * {
+  position: relative;
+}
+
+.page-header__eyebrow {
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  margin-bottom: 1.25rem;
+}
+
+.page-header h1 {
+  margin: 0 auto;
+  max-width: 16ch;
+  font-size: clamp(2.6rem, 6vw, 4.75rem);
+  font-weight: 300;
+  letter-spacing: -0.015em;
+}
+
+.page-header__rule {
+  width: 48px;
+  height: 1px;
+  margin: 2rem auto;
+  background: var(--color-accent);
+  opacity: 0.55;
+}
+
+.page-header__lede {
+  max-width: 58ch;
+  margin: 0 auto;
+  color: var(--color-text-muted);
+  font-size: clamp(1rem, 1.6vw, 1.15rem);
+  line-height: 1.75;
+}
+
+/* ── Buttons ──────────────────────────────────────────────── */
+.btn-primary,
+.btn-secondary,
+.btn-outline {
+  display: inline-block;
+  padding: 0.85rem 2.1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: background-color 0.25s ease, color 0.25s ease,
+              transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.btn-primary {
+  background-color: var(--color-accent);
+  color: #fff;
+  box-shadow: var(--shadow-card);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-accent-hover);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.btn-secondary {
+  background-color: var(--color-surface);
+  color: var(--color-accent-dark);
+  border: 1px solid var(--color-divider);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-surface-offset);
+  color: var(--color-accent-dark);
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent);
+}
+
+.btn-outline:hover {
+  background-color: var(--color-accent);
+  color: #fff;
+}
+
+/* ── Grids reused across pages ────────────────────────────── */
+.treatments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+/* ── Accent list (the ✦ bullets used on several pages) ────── */
+.accent-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.accent-list li {
+  position: relative;
+  padding-left: 1.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.accent-list li::before {
+  content: '✦';
+  position: absolute;
+  left: 0;
+  color: var(--color-accent);
+}
+
+/* ── Reduced motion: the fade-in-up entrances are decorative ── */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .fade-in-up {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============================================================
+   CATEGORY SYSTEM
+   The menu spans four service families (see src/data/categories.ts).
+   Layout.astro emits `--cat-<id>` from that module — the single source of
+   truth — and the rules below map whichever one an element declares onto a
+   local `--cat`. Any component can then style against `--cat` without
+   knowing which category it is rendering.
+   ============================================================ */
+
+[data-cat] {
+  --cat-soft: color-mix(in srgb, var(--cat) 12%, transparent);
+  --cat-line: color-mix(in srgb, var(--cat) 32%, transparent);
+}
+
+/* ── Chips ────────────────────────────────────────────────── */
+/* The category marker. Sits on cards, treatment heroes and the menu rail. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.32rem 0.85rem;
+  border-radius: var(--radius-full);
+  background-color: var(--cat-soft, var(--color-accent-light));
+  color: var(--cat, var(--color-accent-dark));
+  border: 1px solid var(--cat-line, transparent);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+.chip--dot::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cat, var(--color-accent));
+}
+
+/* The marker for treatments gated behind medical screening. Deliberately not
+   alarming — it reads as a credential, not a warning label. */
+.chip--medical {
+  background-color: transparent;
+  border-color: var(--color-divider);
+  color: var(--color-text-muted);
+}
+
+/* ── Fact grid ────────────────────────────────────────────── */
+/* Price / duration / sessions / downtime / results. A treatment menu that
+   spans a 90-minute facial and a six-session laser course cannot set
+   expectations with price-and-duration alone. */
+.fact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.75rem 2rem;
+  margin: 0;
+  padding: 1.75rem 0;
+  border-top: 1px solid var(--color-divider);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.fact-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.fact-grid dt {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-text-muted);
+}
+
+.fact-grid dd {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--color-text);
+}
+
+/* The headline facts get the display face; the rest stay in body copy so the
+   hierarchy survives long values like "6–10 sessions, 4–8 weeks apart". */
+.fact-grid dd.is-lead {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  line-height: 1.2;
+  color: var(--color-accent-dark);
+}
+
+/* ── Notice ───────────────────────────────────────────────── */
+/* Used for the clinical-screening statements. Bordered rather than filled:
+   this is information the studio stands behind, not a disclaimer it is
+   hiding at the bottom of the page. */
+.notice {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.1rem;
+  padding: 1.5rem 1.75rem;
+  border: 1px solid var(--cat-line, var(--color-divider));
+  border-left: 3px solid var(--cat, var(--color-accent));
+  border-radius: var(--radius-sm);
+  background-color: var(--cat-soft, var(--color-accent-light));
+}
+
+.notice__mark {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--cat, var(--color-accent));
+  color: var(--cat, var(--color-accent));
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.notice h3 {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--cat, var(--color-accent-dark));
+  margin: 0 0 0.5rem;
+}
+
+.notice p {
+  margin: 0;
+  font-size: 0.94rem;
+  line-height: 1.7;
+  color: var(--color-text-muted);
+}
+
+/* ── FAQ accordion ────────────────────────────────────────── */
+/* <details> so it works with JavaScript disabled and stays keyboard- and
+   screen-reader-navigable for free. */
+.faq-list {
+  border-top: 1px solid var(--color-divider);
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.faq-item > summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.4rem 0;
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2vw, 1.3rem);
+  color: var(--color-text);
+  transition: color 0.2s ease;
+}
+
+.faq-item > summary::-webkit-details-marker { display: none; }
+
+.faq-item > summary:hover {
+  color: var(--color-accent);
+}
+
+.faq-item > summary::after {
+  content: '+';
+  flex: none;
+  font-family: var(--font-body);
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--color-accent);
+  transition: transform 0.25s ease;
+}
+
+.faq-item[open] > summary::after {
+  transform: rotate(45deg);
+}
+
+.faq-item__answer {
+  margin: 0;
+  padding: 0 0 1.6rem;
+  max-width: 68ch;
+  color: var(--color-text-muted);
+  line-height: 1.8;
+}
+
+/* ── Reduced motion ───────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .faq-item > summary::after { transition: none; }
 }

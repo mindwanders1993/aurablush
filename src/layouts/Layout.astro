@@ -1,15 +1,45 @@
 ---
 import '../styles/global.css';
+import { categories } from '../data/categories';
+import { site } from '../data/site';
 
 interface Props {
   title?: string;
   description?: string;
+  /**
+   * Immersive pages open on the scroll-world flight, which owns the viewport
+   * from scroll 0: no top offset, and the site header stays hidden until the
+   * flight is behind you (the engine draws its own topbar meanwhile).
+   */
+  immersive?: boolean;
 }
 
-const { 
-  title = "Aura Blush Studio | Premium PMU & Beauty", 
-  description = "Enhance your natural beauty at Aura Blush Studio. Specializing in Microblading, Lip Blush, and advanced aesthetic treatments." 
+const {
+  title = "Aura Blush Studio | Permanent Makeup, Skin & Laser in Varanasi",
+  description = "Permanent makeup, collagen and glass-skin facials, pigmentation and brightening protocols, Nd:YAG laser hair reduction and dermatologist-screened mole removal — in Sigra, Varanasi.",
+  immersive = false
 } = Astro.props;
+
+const nav = [
+  { href: '/treatments', label: 'Treatments' },
+  { href: '/artist',     label: 'The Artist' },
+  { href: '/about',      label: 'About' },
+  { href: '/reviews',    label: 'Reviews' },
+];
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+
+/**
+ * Category colours are emitted here, once, from src/data/categories.ts so the
+ * palette has exactly one definition. `--cat-<id>` holds the hue for both
+ * themes; `[data-cat]` maps whichever id an element declares onto the local
+ * `--cat` that every component styles against.
+ */
+const categoryTokens = [
+  `:root{${categories.map(c => `--cat-${c.id}:${c.accent};`).join('')}}`,
+  `[data-theme="dark"]{${categories.map(c => `--cat-${c.id}:${c.accentDark};`).join('')}}`,
+  categories.map(c => `[data-cat="${c.id}"]{--cat:var(--cat-${c.id});}`).join(''),
+].join('');
 ---
 
 <!DOCTYPE html>
@@ -19,60 +49,161 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
+
+    <style is:inline set:html={categoryTokens}></style>
+
     <!-- Favicon (placeholder) -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
+
+    <!-- Set the theme before first paint so a dark-mode visitor never sees a light flash. -->
+    <script is:inline>
+      (() => {
+        try {
+          const saved = localStorage.getItem('aura-theme');
+          const dark = saved
+            ? saved === 'dark'
+            : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+        } catch (e) { /* private mode — light theme is a fine default */ }
+      })();
+    </script>
   </head>
   <body>
-    <!-- Glassmorphic Header -->
-    <header class="glass-panel main-header">
+    <header class:list={['glass-panel', 'main-header', { 'is-immersive': immersive }]}>
       <div class="header-container">
         <a href="/" class="logo">AURA BLUSH</a>
         <nav class="desktop-nav">
-          <a href="/">Home</a>
-          <a href="/treatments">Treatments</a>
-          <a href="/artist">The Artist</a>
-          <a href="/about">About</a>
-          <a href="/reviews">Reviews</a>
+          {nav.map(item => (
+            <a href={item.href} aria-current={path.startsWith(item.href) ? 'page' : undefined}>
+              {item.label}
+            </a>
+          ))}
         </nav>
-        <a href="/contact" class="btn-book">Book Appointment</a>
+        <div class="header-actions">
+          <button type="button" class="theme-toggle" aria-label="Toggle dark mode">
+            <span class="theme-toggle__icon" aria-hidden="true"></span>
+          </button>
+          <a href="/contact" class="btn-book">Book Appointment</a>
+        </div>
       </div>
     </header>
 
-    <main>
+    <main class:list={{ immersive }}>
       <slot />
     </main>
 
-    <!-- Elegant Footer -->
     <footer class="main-footer">
       <div class="footer-container">
         <div class="footer-brand">
           <h3>AURA BLUSH</h3>
-          <p class="text-muted">Enhance your natural beauty, timelessly.</p>
+          <p class="text-muted">Permanent makeup, skin and laser — under one roof in Varanasi, to one standard.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Treatments</h4>
+          <ul>
+            {categories.map(c => (
+              <li>
+                <a href={`/treatments#${c.id}`} data-cat={c.id}>
+                  <span class="footer-dot" aria-hidden="true"></span>{c.label}
+                </a>
+              </li>
+            ))}
+            <li><a href="/treatments">Full menu &amp; prices</a></li>
+          </ul>
         </div>
         <div class="footer-links">
           <h4>Explore</h4>
           <ul>
-            <li><a href="/treatments">Services</a></li>
+            <li><a href="/artist">The Artist</a></li>
             <li><a href="/about">Our Story</a></li>
+            <li><a href="/reviews">Reviews</a></li>
             <li><a href="/contact">Contact</a></li>
           </ul>
         </div>
         <div class="footer-contact">
           <h4>Visit Us</h4>
-          <p class="text-muted">123 Beauty Lane, Suite 100<br/>New York, NY 10001</p>
+          <p class="text-muted">
+            {site.address.line1 && <>{site.address.line1}<br /></>}
+            {site.address.line2}<br />{site.address.state}
+          </p>
+          <p class="text-muted">
+            {site.hours.map(h => <span class="footer-hours">{h.days} &middot; {h.time}</span>)}
+          </p>
+          <p class="text-muted">
+            {site.phone.display && <><a href={site.phone.href}>{site.phone.display}</a><br /></>}
+            {site.email && <><a href={`mailto:${site.email}`}>{site.email}</a><br /></>}
+            <a href={site.social.instagram.href} class="footer-ig" target="_blank" rel="noopener noreferrer">
+              <svg class="ig-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="2.5" y="2.5" width="19" height="19" rx="5.5"
+                      fill="none" stroke="currentColor" stroke-width="1.8" />
+                <circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.8" />
+                <circle cx="17.4" cy="6.6" r="1.2" fill="currentColor" />
+              </svg>
+              {site.social.instagram.handle}
+            </a>
+          </p>
         </div>
       </div>
       <div class="footer-bottom">
+        <p class="footer-legal text-muted">
+          {site.gstNote} Treatment information on this site is general guidance, not medical
+          advice. Laser, pigmentation and lesion services require consultation and screening;
+          moles are removed only with a dermatologist's written clearance. We do
+          not offer skin-lightening or fairness treatments. Individual results vary.
+        </p>
         <p class="text-muted">&copy; {new Date().getFullYear()} Aura Blush Studio. All rights reserved.</p>
       </div>
     </footer>
+
+    <script is:inline>
+      // Theme toggle
+      (() => {
+        const btn = document.querySelector('.theme-toggle');
+        if (!btn) return;
+        const root = document.documentElement;
+        const sync = () => {
+          const dark = root.getAttribute('data-theme') === 'dark';
+          btn.setAttribute('aria-pressed', String(dark));
+          btn.dataset.mode = dark ? 'dark' : 'light';
+        };
+        btn.addEventListener('click', () => {
+          const dark = root.getAttribute('data-theme') === 'dark';
+          if (dark) root.removeAttribute('data-theme');
+          else root.setAttribute('data-theme', 'dark');
+          try { localStorage.setItem('aura-theme', dark ? 'light' : 'dark'); } catch (e) {}
+          sync();
+        });
+        sync();
+      })();
+
+      // Immersive pages: the scroll-world owns the viewport until its track ends.
+      // #world wraps the engine's full-height track, so its bottom edge IS the end
+      // of the flight — reveal the site header only once we're past it.
+      (() => {
+        const header = document.querySelector('.main-header.is-immersive');
+        const world = document.getElementById('world');
+        if (!header || !world) return;
+        let ticking = false;
+        const update = () => {
+          ticking = false;
+          header.classList.toggle('is-revealed', world.getBoundingClientRect().bottom <= 80);
+        };
+        const onScroll = () => {
+          if (ticking) return;
+          ticking = true;
+          requestAnimationFrame(update);
+        };
+        addEventListener('scroll', onScroll, { passive: true });
+        addEventListener('resize', onScroll);
+        update();
+      })();
+    </script>
   </body>
 </html>
 
@@ -85,8 +216,23 @@ const {
     z-index: 100;
     border-bottom: 1px solid var(--color-divider);
     padding: 1rem 0;
+    transition: transform 0.4s ease, opacity 0.4s ease;
   }
-  
+
+  /* On an immersive page the header is parked off-canvas while the flight plays;
+     the engine's own topbar is the chrome for that stretch. */
+  .main-header.is-immersive {
+    transform: translateY(-110%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .main-header.is-immersive.is-revealed {
+    transform: none;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
   .header-container {
     max-width: var(--max-width-wide);
     margin: 0 auto;
@@ -94,6 +240,7 @@ const {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1.5rem;
   }
 
   .logo {
@@ -102,13 +249,88 @@ const {
     font-weight: 600;
     letter-spacing: 0.1em;
     color: var(--color-accent-dark);
+    white-space: nowrap;
+  }
+
+  .desktop-nav {
+    display: none;
+  }
+
+  @media (min-width: 900px) {
+    .desktop-nav {
+      display: flex;
+      gap: 2rem;
+    }
   }
 
   .desktop-nav a {
-    margin: 0 1rem;
-    font-size: 0.9rem;
+    position: relative;
+    font-size: 0.85rem;
     font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: var(--color-text);
+    padding-bottom: 4px;
+  }
+
+  .desktop-nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform 0.25s ease;
+  }
+
+  .desktop-nav a:hover::after,
+  .desktop-nav a[aria-current='page']::after {
+    transform: scaleX(1);
+  }
+
+  .desktop-nav a[aria-current='page'] {
+    color: var(--color-accent);
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  .theme-toggle {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius-full);
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent-light);
+  }
+
+  /* A crescent that fills in solid for light mode and hollows out for dark. */
+  .theme-toggle__icon {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: inset -4px -1px 0 0 var(--color-bg);
+    transition: box-shadow 0.3s ease, background-color 0.3s ease;
+  }
+
+  .theme-toggle[data-mode='dark'] .theme-toggle__icon {
+    box-shadow: inset 0 0 0 0 var(--color-bg);
   }
 
   .btn-book {
@@ -116,8 +338,10 @@ const {
     color: white;
     padding: 0.6rem 1.2rem;
     border-radius: var(--radius-full);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 500;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
     transition: background-color 0.2s ease, transform 0.2s ease;
   }
 
@@ -129,14 +353,20 @@ const {
 
   main {
     margin-top: 80px; /* Offset for fixed header */
-    min-height: calc(100vh - 80px - 300px); /* rough calc for footer */
+    min-height: calc(100vh - 80px - 300px);
+  }
+
+  /* The flight starts at scroll 0 and sits under the fixed chrome — no offset. */
+  main.immersive {
+    margin-top: 0;
   }
 
   .main-footer {
+    position: relative;
+    z-index: 30; /* clears the scroll engine's fixed stage on immersive pages */
     background-color: var(--color-surface-offset);
     border-top: 1px solid var(--color-divider);
     padding: 4rem 0 2rem;
-    margin-top: 4rem;
   }
 
   .footer-container {
@@ -148,6 +378,11 @@ const {
     gap: 3rem;
   }
 
+  .footer-brand h3 {
+    letter-spacing: 0.1em;
+    color: var(--color-accent-dark);
+  }
+
   .footer-links ul {
     list-style: none;
     padding: 0;
@@ -155,6 +390,54 @@ const {
 
   .footer-links li {
     margin-bottom: 0.5rem;
+  }
+
+  .footer-links a {
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+  }
+
+  .footer-links a:hover {
+    color: var(--color-accent);
+  }
+
+  .footer-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+
+  /* Each service family carries its colour into the footer, so the four
+     categories are recognisable from anywhere on the site. */
+  .footer-dot {
+    width: 6px;
+    height: 6px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--cat, var(--color-accent));
+  }
+
+  .footer-hours {
+    display: block;
+  }
+
+  .footer-ig {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .ig-icon {
+    width: 16px;
+    height: 16px;
+    flex: none;
+  }
+
+  .footer-legal {
+    max-width: 78ch;
+    margin: 0 auto 1.25rem;
+    font-size: 0.78rem;
+    line-height: 1.65;
   }
 
   .footer-bottom {

@@ -1,0 +1,126 @@
+---
+/**
+ * TreatmentArt — generated card artwork.
+ *
+ * Eight of the ten treatments have no photography yet, and the old grey
+ * gradient fallback made them read as unfinished next to the two that do.
+ * Rather than hold the menu back on a photoshoot, each category gets an
+ * abstract motif drawn from what the treatment actually does to skin:
+ *
+ *   pmu       fine directional strokes  — hair strokes laid in growth direction
+ *   skin      concentric contours       — collagen rebuilding outward in layers
+ *   pigment   a cluster resolving       — dense spots dispersing and fading
+ *   clinical  a registered grid         — measurement, targeting, precision
+ *
+ * Everything is tinted from `--cat`, so the art inherits the category colour
+ * and follows the light/dark theme with no second asset.
+ */
+interface Props {
+  category: string;
+  /** Decorative by default; the card labels itself in text. */
+  title?: string;
+}
+
+const { category, title } = Astro.props;
+
+/* Several cards of the same category share a page, so the gradient needs an id
+   unique to this instance — otherwise every one of them resolves url(#…) to
+   the first card's def and the document carries duplicate ids. */
+const gradientId = `art-${category}-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<svg
+  class="art"
+  viewBox="0 0 320 200"
+  preserveAspectRatio="xMidYMid slice"
+  role={title ? 'img' : 'presentation'}
+  aria-label={title}
+  aria-hidden={title ? undefined : 'true'}
+>
+  <defs>
+    <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="var(--cat)" stop-opacity="0.16" />
+      <stop offset="100%" stop-color="var(--cat)" stop-opacity="0.04" />
+    </linearGradient>
+  </defs>
+
+  <rect width="320" height="200" fill={`url(#${gradientId})`} />
+
+  {category === 'pmu' && (
+    <g stroke="var(--cat)" fill="none" stroke-linecap="round">
+      {Array.from({ length: 22 }, (_, i) => {
+        // Strokes fan along an arc, each one slightly longer toward the tail —
+        // the way a mapped brow is actually built.
+        const t = i / 21;
+        const x = 34 + t * 250;
+        const y = 132 - Math.sin(t * Math.PI * 0.85) * 52;
+        const len = 26 + Math.sin(t * Math.PI) * 20;
+        const lean = 16 - t * 26;
+        return (
+          <path
+            d={`M ${x} ${y + len / 2} Q ${x + lean / 2} ${y} ${x + lean} ${y - len / 2}`}
+            stroke-width={0.9 + Math.sin(t * Math.PI) * 0.7}
+            opacity={0.3 + Math.sin(t * Math.PI) * 0.45}
+          />
+        );
+      })}
+    </g>
+  )}
+
+  {category === 'skin' && (
+    <g stroke="var(--cat)" fill="none">
+      {Array.from({ length: 9 }, (_, i) => (
+        <ellipse
+          cx="160"
+          cy="100"
+          rx={26 + i * 17}
+          ry={16 + i * 11}
+          stroke-width={i === 0 ? 1.6 : 1}
+          opacity={0.55 - i * 0.05}
+        />
+      ))}
+      <circle cx="160" cy="100" r="4" fill="var(--cat)" opacity="0.6" stroke="none" />
+    </g>
+  )}
+
+  {category === 'pigment' && (
+    <g fill="var(--cat)" stroke="none">
+      {Array.from({ length: 46 }, (_, i) => {
+        // A dense cluster at the left dispersing to almost nothing at the
+        // right: pigment clearing, which is what the protocol is for.
+        const t = i / 45;
+        const x = 30 + t * 262 + Math.sin(i * 2.7) * 14;
+        const y = 100 + Math.cos(i * 1.9) * (18 + t * 46);
+        return (
+          <circle cx={x} cy={y} r={(1 - t) * 5.5 + 1} opacity={(1 - t) * 0.5 + 0.06} />
+        );
+      })}
+    </g>
+  )}
+
+  {category === 'clinical' && (
+    <g stroke="var(--cat)" fill="none">
+      {Array.from({ length: 7 }, (_, i) => (
+        <line x1={40 + i * 40} y1="24" x2={40 + i * 40} y2="176" stroke-width="0.6" opacity="0.22" />
+      ))}
+      {Array.from({ length: 4 }, (_, i) => (
+        <line x1="24" y1={40 + i * 40} x2="296" y2={40 + i * 40} stroke-width="0.6" opacity="0.22" />
+      ))}
+      <circle cx="200" cy="100" r="34" stroke-width="1.2" opacity="0.5" />
+      <circle cx="200" cy="100" r="17" stroke-width="1.2" opacity="0.7" />
+      <line x1="200" y1="52" x2="200" y2="80" stroke-width="1.2" opacity="0.7" />
+      <line x1="200" y1="120" x2="200" y2="148" stroke-width="1.2" opacity="0.7" />
+      <line x1="152" y1="100" x2="180" y2="100" stroke-width="1.2" opacity="0.7" />
+      <line x1="220" y1="100" x2="248" y2="100" stroke-width="1.2" opacity="0.7" />
+    </g>
+  )}
+</svg>
+
+<style>
+  .art {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-surface-offset);
+  }
+</style>

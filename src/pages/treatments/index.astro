@@ -1,66 +1,271 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import SectionHeading from '../../components/SectionHeading.astro';
 import TreatmentCard from '../../components/TreatmentCard.astro';
 import { getCollection } from 'astro:content';
+import { categories } from '../../data/categories';
 
 const allTreatments = await getCollection('treatments');
+const allFaqs = await getCollection('faqs');
+
+/**
+ * Ten treatments across four service families is past the point where one flat
+ * grid reads. The menu is grouped instead, with a rail that sticks to the top
+ * of the viewport — links to real anchors, so it works before JavaScript runs
+ * and survives being shared as a URL.
+ */
+const menu = categories
+  .map(category => ({
+    category,
+    treatments: allTreatments
+      .filter(t => t.data.category === category.id)
+      .sort((a, b) => a.data.order - b.data.order),
+    faqs: allFaqs
+      .filter(f => f.data.category === category.id)
+      .sort((a, b) => a.data.order - b.data.order),
+  }))
+  .filter(group => group.treatments.length > 0);
+
+const generalFaqs = allFaqs
+  .filter(f => f.data.category === 'general')
+  .sort((a, b) => a.data.order - b.data.order);
+
+const medicalCount = allTreatments.filter(t => t.data.medical).length;
 ---
 
-<Layout title="Treatments | Aura Blush Studio" description="Explore our premium PMU and beauty treatments including microblading, lip blush, and more.">
-  <div class="page-header">
-    <SectionHeading 
-      title="Our Treatments" 
-      subtitle="Services"
-    />
-    <p class="header-description">Discover our range of bespoke beauty services tailored to enhance your natural features. We specialize in advanced Permanent Makeup (PMU) techniques.</p>
-  </div>
+<Layout
+  title="Treatments | Aura Blush Studio"
+  description="The full menu — permanent makeup, collagen and glass-skin facials, pigmentation and brightening protocols, laser hair reduction and clinical lesion removal."
+>
+  <header class="page-header">
+    <span class="page-header__eyebrow">The Menu</span>
+    <h1>Our Treatments</h1>
+    <div class="page-header__rule"></div>
+    <p class="page-header__lede">
+      Four service families, one standard. Every treatment below lists what it costs, how
+      many sessions it actually takes, what the downtime is and who it isn't for — because
+      the honest version is the one that stops you booking the wrong thing.
+    </p>
+  </header>
 
-  <section class="treatments-section">
-    <div class="container">
-      <div class="treatments-grid">
-        {allTreatments.map((treatment) => (
-          <TreatmentCard 
-            title={treatment.data.title}
-            price={treatment.data.price}
-            duration={treatment.data.duration}
-            description={treatment.data.description}
-            slug={treatment.id}
-            image={treatment.data.image}
-          />
-        ))}
+  <nav class="menu-rail" aria-label="Treatment categories">
+    <div class="menu-rail__inner">
+      {menu.map(({ category, treatments }) => (
+        <a href={`#${category.id}`} class="rail-link" data-cat={category.id}>
+          <span class="rail-dot" aria-hidden="true"></span>
+          <span class="rail-label">{category.label}</span>
+          <span class="rail-count">{treatments.length}</span>
+        </a>
+      ))}
+    </div>
+  </nav>
+
+  {menu.map(({ category, treatments, faqs }, i) => (
+    <section
+      id={category.id}
+      class:list={['section', 'family', { 'bg-offset': i % 2 === 1 }]}
+      data-cat={category.id}
+    >
+      <div class="container">
+        <div class="family-head">
+          <span class="chip chip--dot">{category.short}</span>
+          <h2>{category.label}</h2>
+          <p class="family-desc">{category.description}</p>
+        </div>
+
+        <div class="treatments-grid">
+          {treatments.map(treatment => (
+            <TreatmentCard
+              title={treatment.data.title}
+              category={treatment.data.category}
+              price={treatment.data.price}
+              duration={treatment.data.duration}
+              sessions={treatment.data.sessions}
+              description={treatment.data.description}
+              slug={treatment.id}
+              image={treatment.data.image}
+              medical={treatment.data.medical}
+            />
+          ))}
+        </div>
+
+        {faqs.length > 0 && (
+          <div class="family-faqs">
+            <h3>Questions about {category.label.toLowerCase()}</h3>
+            <div class="faq-list">
+              {faqs.map(faq => (
+                <details class="faq-item">
+                  <summary>{faq.data.question}</summary>
+                  <p class="faq-item__answer">{faq.data.answer}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
+    </section>
+  ))}
+
+  <section class="section">
+    <div class="container">
+      <div class="screening" data-cat="clinical">
+        <div class="notice">
+          <span class="notice__mark" aria-hidden="true">!</span>
+          <div>
+            <h3>Where we say no</h3>
+            <p>
+              {medicalCount} of our treatments are gated behind a documented skin assessment,
+              and two of them we will decline outright without it: laser without a patch test
+              24–48 hours ahead, and any pigmented lesion without a dermatologist's written
+              confirmation that it is benign. Radiofrequency destroys the tissue it removes,
+              so a mole taken off for cosmetic reasons is a mole that can never be tested.
+              If a treatment is wrong for your skin, medication or expectations, we will tell
+              you at consultation rather than take the booking.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {generalFaqs.length > 0 && (
+        <div class="general-faqs">
+          <h2>Before you book</h2>
+          <div class="faq-list">
+            {generalFaqs.map(faq => (
+              <details class="faq-item">
+                <summary>{faq.data.question}</summary>
+                <p class="faq-item__answer">{faq.data.answer}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <aside class="treatments-note">
+        <p>
+          Not sure which is right for you — or correcting work from another studio?
+          <a href="/contact">Book a consultation</a> and we'll talk it through first.
+        </p>
+      </aside>
     </div>
   </section>
 </Layout>
 
 <style>
-  .page-header {
-    padding: 6rem 1.5rem 3rem;
-    text-align: center;
-    background-color: var(--color-surface-offset);
+  /* ── The category rail ──────────────────────────────────────
+     Sticks under the fixed site header (80px) and scrolls horizontally on
+     narrow screens rather than wrapping into a second row. */
+  .menu-rail {
+    position: sticky;
+    top: 80px;
+    z-index: 40;
+    background-color: var(--color-bg);
+    border-top: 1px solid var(--color-divider);
+    border-bottom: 1px solid var(--color-divider);
   }
 
-  .header-description {
-    max-width: 600px;
-    margin: 0 auto;
-    color: var(--color-text-muted);
-    font-size: 1.1rem;
-  }
-
-  .treatments-section {
-    padding: 4rem 0;
-  }
-
-  .container {
+  .menu-rail__inner {
     max-width: var(--max-width-wide);
     margin: 0 auto;
     padding: 0 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
 
-  .treatments-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 2rem;
+  .menu-rail__inner::-webkit-scrollbar { display: none; }
+
+  .rail-link {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 1.05rem 1rem;
+    white-space: nowrap;
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted);
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .rail-link:hover {
+    color: var(--cat);
+    border-bottom-color: var(--cat);
+  }
+
+  .rail-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--cat);
+  }
+
+  .rail-count {
+    font-size: 0.7rem;
+    color: var(--color-text-faint);
+  }
+
+  /* Anchor targets clear both the fixed header and the sticky rail. */
+  .family {
+    scroll-margin-top: 136px;
+  }
+
+  .family-head {
+    max-width: 62ch;
+    margin-bottom: clamp(2.5rem, 5vw, 3.5rem);
+  }
+
+  .family-head h2 {
+    margin: 1.1rem 0 1rem;
+    font-weight: 300;
+  }
+
+  .family-desc {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 1.02rem;
+    line-height: 1.8;
+  }
+
+  .family-faqs {
+    margin-top: clamp(3rem, 6vw, 4.5rem);
+    max-width: 62rem;
+  }
+
+  .family-faqs h3 {
+    font-size: 1.1rem;
+    font-family: var(--font-body);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--cat);
+    margin-bottom: 0.75rem;
+  }
+
+  .screening {
+    max-width: 62rem;
+    margin: 0 auto;
+  }
+
+  .general-faqs {
+    max-width: 62rem;
+    margin: clamp(4rem, 8vw, 6rem) auto 0;
+  }
+
+  .general-faqs h2 {
+    font-weight: 300;
+    margin-bottom: 1.5rem;
+  }
+
+  .treatments-note {
+    margin-top: 4rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--color-divider);
+    text-align: center;
+    color: var(--color-text-muted);
+  }
+
+  .treatments-note p {
+    margin: 0;
   }
 </style>

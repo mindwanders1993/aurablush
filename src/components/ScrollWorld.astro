@@ -1,0 +1,150 @@
+---
+/**
+ * ScrollWorld — the lets-scroll camera flight through the studio.
+ *
+ * Architecture A (continuous walkthrough): six forward legs, NO connectors.
+ * Each leg starts on the previous leg's actual last frame, so the seams are
+ * frame-identical and the camera never reverses.
+ *
+ * Until the clips are rendered, the `clip` / `clipMobile` / `stillMobile` keys
+ * below stay commented and the engine simply cross-dissolves the stills. Drop
+ * the encoded files into /world/vid/, uncomment, and nothing else changes.
+ * See world/HANDOFF.md for the render spec.
+ */
+
+const scenes = [
+  {
+    id: 'arrival',
+    label: 'Arrival',
+    still: '/images/hero.jpg',
+    // Real assets (see world/HANDOFF.md) — swap these in when the renders land:
+    // still: '/world/arrival.jpg',
+    // clip: '/world/vid/arrival.mp4',
+    // clipMobile: '/world/vid/arrival-m.mp4',
+    // stillMobile: '/world/arrival-m.jpg',
+    accent: '#d9868d',
+    scroll: 1.6,
+    linger: 0.45,
+    eyebrow: 'Aura Blush Studio',
+    title: 'Step inside.',
+    body: 'A permanent-makeup and skin studio in Varanasi, built around one idea — you should look like yourself on your best morning, every morning.',
+    tags: ['Sigra, Varanasi', '10 treatments'],
+  },
+  {
+    id: 'consult',
+    label: 'The Consultation',
+    still: '/images/microneedling.jpg',
+    // Real assets (see world/HANDOFF.md) — swap these in when the renders land:
+    // still: '/world/consult.jpg',
+    // clip: '/world/vid/consult.mp4',
+    // clipMobile: '/world/vid/consult-m.mp4',
+    // stillMobile: '/world/consult-m.jpg',
+    accent: '#d47a82',
+    eyebrow: 'It starts with your face',
+    title: 'Diagnosed, not upsold.',
+    body: 'Brow mapping and pigment matching on one side of the room; Fitzpatrick typing, pigment depth and patch tests on the other. Agreed on paper before anything is opened.',
+    tags: ['Brow mapping', 'Fitzpatrick typing', 'Patch testing'],
+  },
+  {
+    id: 'prep',
+    label: 'Sterile Prep',
+    still: '/images/studio.jpg',
+    // Real assets (see world/HANDOFF.md) — swap these in when the renders land:
+    // still: '/world/prep.jpg',
+    // clip: '/world/vid/prep.mp4',
+    // clipMobile: '/world/vid/prep-m.mp4',
+    // stillMobile: '/world/prep-m.jpg',
+    accent: '#c2707b',
+    eyebrow: "The part you don't see",
+    title: 'Everything single-use. Every time.',
+    body: 'Needles, blades and laser tips come out of a sealed pouch in front of you and go straight into sharps. Nothing is ever reused, and nothing is done outside its certified scope — a dermatologist sees your skin before anything clinical happens to it.',
+    tags: ['100% disposable', 'Vegan pigments', 'Laser certified'],
+  },
+  {
+    id: 'brows',
+    label: 'The Brow Suite',
+    still: '/images/microblading.jpg',
+    // Real assets (see world/HANDOFF.md) — swap these in when the renders land:
+    // still: '/world/brows.jpg',
+    // clip: '/world/vid/brows.mp4',
+    // clipMobile: '/world/vid/brows-m.mp4',
+    // stillMobile: '/world/brows-m.jpg',
+    accent: '#bc5d66',
+    eyebrow: 'Nano Microblading',
+    title: 'Strokes, not strips.',
+    body: 'Hyper-fine hair strokes laid in the direction your own brow already grows, so the shape reads as growth rather than makeup.',
+    tags: ['₹12,000', '2 hrs', 'Heals in 10 days'],
+  },
+  {
+    id: 'lips',
+    label: 'The Lip Suite',
+    still: '/images/lip-blush.jpg',
+    // Real assets (see world/HANDOFF.md) — swap these in when the renders land:
+    // still: '/world/lips.jpg',
+    // clip: '/world/vid/lips.mp4',
+    // clipMobile: '/world/vid/lips-m.mp4',
+    // stillMobile: '/world/lips-m.jpg',
+    accent: '#cf7a8a',
+    eyebrow: 'Lip Blush',
+    title: 'Your colour, only truer.',
+    body: 'A soft wash of tint that restores the border and brings back the colour lips lose with age — never a drawn-on line.',
+    tags: ['₹14,000', '2 hrs', 'Lasts 2 years'],
+  },
+  {
+    id: 'reveal',
+    label: 'The Reveal',
+    still: '/images/studio.jpg',
+    // Real assets (see world/HANDOFF.md) — swap these in when the renders land:
+    // still: '/world/reveal.jpg',
+    // clip: '/world/vid/reveal.mp4',
+    // clipMobile: '/world/vid/reveal-m.mp4',
+    // stillMobile: '/world/reveal-m.jpg',
+    accent: '#b8535f',
+    scroll: 1.6,
+    linger: 0.45,
+    eyebrow: 'And then',
+    title: 'You, waking up ready.',
+    body: 'No pencil, no daily redraw, no concealer over the same spot for the fifth year running. Just your face, already finished.',
+    tags: ['Permanent makeup', 'Skin', 'Pigment', 'Laser'],
+    cta: {
+      primary: { label: 'Book Appointment', href: '/contact' },
+      secondary: { label: 'See the full menu', href: '/treatments' },
+    },
+  },
+];
+---
+
+<div id="world" class="scroll-world"></div>
+
+<script is:inline src="/world/scrub-engine.js"></script>
+<script is:inline define:vars={{ scenes }}>
+  mountLetsScroll(document.getElementById('world'), {
+    brand: { name: 'AURA BLUSH', href: '/' },
+    cta: { label: 'Book Appointment', href: '/contact' },
+    hint: 'scroll to step inside',
+    diveScroll: 1.3,
+    sections: scenes,
+    // Architecture A — the legs ARE the journey; there are no connectors.
+    connectors: [],
+  });
+</script>
+
+<style is:global>
+  /* The engine wraps its own tokens in @layer sw, so this plain .sw-root block
+     wins cleanly. Everything maps onto the existing Warm Blush / Velvet Rose
+     tokens in global.css, which means the flight follows the theme toggle. */
+  .sw-root {
+    --sw-bg: var(--color-bg);
+    --sw-ink: var(--color-text);
+    --sw-ink-soft: var(--color-text-muted);
+    --sw-accent: var(--color-accent);
+    --sw-font-display: var(--font-display);
+    --sw-font-body: var(--font-body);
+  }
+
+  /* The engine's copy titles are set at weight 700; the display serif reads
+     better on this brand at its lighter weights. */
+  .sw-copy__title {
+    font-weight: 500;
+  }
+</style>

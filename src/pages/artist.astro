@@ -1,199 +1,390 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import SectionHeading from '../components/SectionHeading.astro';
+import { getCollection } from 'astro:content';
+import { site } from '../data/site';
+
+// Identities live in the team collection so the site has one source of truth
+// for them (this page previously hard-coded a different name).
+const team = await getCollection('team');
+// One founder. Any "team" framing on this page has to earn its place by
+// describing a real person — see the intake questionnaire in HANDOFF-FOUNDER.md.
+const artist = team[0];
+
+if (!artist) {
+  throw new Error(
+    'No entries in the `team` content collection — /artist cannot render.\n' +
+    'Expected at least one file in src/content/team/ (e.g. founder.md).\n' +
+    'If the file exists, the dev server is serving a stale content cache: ' +
+    'astro dev stop && rm -rf node_modules/.astro .astro && npx astro dev'
+  );
+}
+
+/**
+ * Deliberately unspecific. "Certified practitioner" is what we can support
+ * today; naming an academy, a year or a technique-specific certification has to
+ * wait until the certificates are actually to hand, because the wording on them
+ * is what can legally be claimed. See HANDOFF-FOUNDER.md §2.
+ */
+const credentials = [
+  '3 years of experience in permanent makeup and skin treatments',
+  'Certified practitioner — certificate courses in permanent makeup and skin',
+  'Single-use sterile protocol on every treatment',
+];
+
+// The clinical half of the menu is not the founder's scope, and saying so is
+// the point of this block.
+const portfolio = [
+  { image: '/images/microblading.jpg', title: 'Healed nano brows', note: 'Hyper-realistic hair strokes' },
+  { image: '/images/lip-blush.jpg',    title: 'Healed lip blush',  note: 'Soft dusty rose tint' },
+];
 ---
 
-<Layout title="Meet The Artist | Aura Blush Studio">
-  <div class="page-header">
-    <SectionHeading title="Meet The Artist" subtitle="Founder & Master PMU" />
-  </div>
+<Layout
+  title="Meet The Artist | Aura Blush Studio"
+  description={`${artist.data.name}, founder of Aura Blush Studio in Varanasi.`}
+>
+  <header class="page-header">
+    <span class="page-header__eyebrow">Who treats you</span>
+    <h1>Meet the artist</h1>
+    <div class="page-header__rule"></div>
+    <p class="page-header__lede">
+      One artist, start to finish. The person who maps your brows is the person who
+      treats your skin — nobody hands you off partway through.
+    </p>
+  </header>
 
-  <section class="artist-profile-section">
+  <section class="section">
     <div class="container">
       <div class="artist-grid">
-        <div class="artist-image glass-panel" style="background: url('/images/artist.jpg') center/cover no-repeat;">
+        <div class="artist-image">
+          {artist.data.image
+            ? <img src={artist.data.image} alt={artist.data.name} loading="lazy" />
+            : (
+              <div class="artist-image__pending">
+                <svg class="pending-mark" viewBox="0 0 48 40" aria-hidden="true">
+                  <rect x="1" y="1" width="46" height="38" rx="3"
+                        fill="none" stroke="currentColor" stroke-width="1.5" />
+                  <circle cx="15" cy="13" r="4" fill="none" stroke="currentColor" stroke-width="1.5" />
+                  <path d="M4 33 L18 20 L27 28 L34 22 L44 33"
+                        fill="none" stroke="currentColor" stroke-width="1.5"
+                        stroke-linejoin="round" stroke-linecap="round" />
+                </svg>
+                <p class="pending-title">Photo of {artist.data.name.split(' ')[0]} goes here</p>
+                <p class="pending-note">
+                  Save as <code>public/images/artist.jpg</code><br />
+                  Square, 1024&times;1024. Plain wall, daylight on her face, camera at eye level.
+                </p>
+              </div>
+            )}
         </div>
-        
+
         <div class="artist-bio">
-          <h2>Hello, I'm Jessica Lee</h2>
-          <p class="subtitle text-muted">Master PMU Artist & Esthetician</p>
-          
+          <h2>Hello, I'm {artist.data.name}.</h2>
+          <p class="artist-role">{artist.data.specialty ?? artist.data.role}</p>
+
           <div class="bio-content">
-            <p>Welcome to my studio! I have spent the last decade perfecting the art of subtle, hyper-realistic permanent makeup. My philosophy is simple: **enhancement over transformation**.</p>
-            <p>I began my career training extensively in South Korea, where the focus on natural beauty and flawless skin is paramount. I then brought those world-class techniques to the US, blending them with modern aesthetics to create my signature "Aura Blush" look.</p>
-            <p>Whether you're looking for perfectly fluffy nano brows or a beautifully diffused lip blush, my goal is to give you a result that looks like you—just effortlessly radiant.</p>
+            <p>
+              Three years of putting pigment into skin teaches you that the work is
+              mostly preparation. The mapping, the pigment match, the questions about
+              your medication and your skin — that is where a result is decided. The
+              needle part is the easy bit.
+            </p>            <p>
+              I opened Aura Blush in Sigra because getting careful work done here
+              usually meant a train to Delhi or Lucknow. It shouldn't. The technique
+              is not the hard part — knowing when a treatment is wrong for someone
+              is, and that judgement does not require a bigger city.
+            </p>
+            <p>
+              I work alone, which means the person who assesses your skin is the
+              person who treats it and the person you message afterwards. Nothing is
+              handed off, and nothing gets sold to you by someone who will not be
+              holding the needle.
+            </p>
+            <p>
+              What I will not do: promise fairer skin, rush a course that needs
+              months, or take a booking I do not think will work. If your skin,
+              medication or expectations make something a bad idea, I would rather
+              tell you and lose the appointment.
+            </p>
           </div>
-          
-          <div class="credentials-box glass-panel">
-            <h4>Certifications & Experience</h4>
-            <ul>
-              <li>10+ Years in Aesthetic Beauty</li>
-              <li>Master Certification from Phibrows Academy</li>
-              <li>Advanced Lip Neutralization Specialist</li>
-              <li>Licensed Tattoo Artist & Bloodborne Pathogens Certified</li>
+
+          <div class="credentials">
+            <h3>Certifications &amp; experience</h3>
+            <ul class="accent-list">
+              {credentials.map(item => <li>{item}</li>)}
             </ul>
+          </div>
+
+          <div class="artist-actions">
+            <a href="/contact" class="btn-primary">Book with {artist.data.name.split(' ')[0]}</a>
+            <a href={site.social.instagram.href} class="btn-secondary" target="_blank" rel="noopener noreferrer">
+              {site.social.instagram.handle} on Instagram
+            </a>
           </div>
         </div>
       </div>
     </div>
   </section>
-  
-  <section class="portfolio-section">
+
+  <section class="section">
     <div class="container">
-      <SectionHeading title="Signature Portfolio" subtitle="My Work" />
-      
+      <SectionHeading title="Signature Portfolio" subtitle="PMU Work" />
+
       <div class="portfolio-grid">
-        <div class="portfolio-item glass-panel">
-          <img src="/images/microblading.jpg" alt="Healed Nano Brows" class="portfolio-img" />
-          <div class="portfolio-info">
-            <h4>Healed Nano Brows</h4>
-            <p class="small text-muted">Hyper-realistic hair strokes</p>
-          </div>
-        </div>
-        
-        <div class="portfolio-item glass-panel">
-          <img src="/images/lip-blush.jpg" alt="Healed Lip Blush" class="portfolio-img" />
-          <div class="portfolio-info">
-            <h4>Healed Lip Blush</h4>
-            <p class="small text-muted">Soft dusty rose tint</p>
-          </div>
-        </div>
-        
-        <div class="portfolio-item glass-panel" style="background: linear-gradient(135deg, var(--color-surface-offset), var(--color-divider)); display: flex; align-items: center; justify-content: center; min-height: 400px;">
-          <p class="text-muted">More Portfolio Images Coming Soon</p>
-        </div>
+        {portfolio.map(item => (
+          <figure class="portfolio-item">
+            <img src={item.image} alt={item.title} class="portfolio-img" loading="lazy" />
+            <figcaption>
+              <h4>{item.title}</h4>
+              <p class="text-muted">{item.note}</p>
+            </figcaption>
+          </figure>
+        ))}
       </div>
     </div>
   </section>
 </Layout>
 
 <style>
-  .page-header {
-    padding: 6rem 1.5rem 2rem;
-    text-align: center;
-    background-color: var(--color-surface-offset);
-  }
-
-  .artist-profile-section {
-    padding: 5rem 0;
-  }
-  
-  .container {
-    max-width: var(--max-width-wide);
-    margin: 0 auto;
-    padding: 0 1.5rem;
-  }
-  
   .artist-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 4rem;
-    align-items: flex-start;
+    gap: 3.5rem;
+    align-items: start;
   }
-  
+
   @media (min-width: 900px) {
     .artist-grid {
-      grid-template-columns: 1fr 1.2fr;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 5rem;
     }
   }
 
   .artist-image {
-    height: 600px;
     border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+  }
+
+  @media (min-width: 900px) {
+    .artist-image {
+      position: sticky;
+      top: 110px;
+    }
+  }
+
+  /* Deliberately obvious. An empty labelled frame is honest; a stock portrait of
+     a different person on an artist page is not. Sits inside .artist-image,
+     which already supplies the radius and shadow — so this only paints the
+     ground, and must centre its own content. */
+  .artist-image__pending {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: clamp(360px, 55vw, 620px);
+    padding: 2rem;
+    box-sizing: border-box;
+    /* Tinted from the accent so the hatch is visible on both the light ground
+       and the dark one, where surface-offset and bg are nearly identical. */
     background-color: var(--color-surface-offset);
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 10px,
+      var(--color-accent-light) 10px,
+      var(--color-accent-light) 20px
+    );
+    border: 1px dashed var(--color-accent);
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+  }
+
+  .pending-mark {
+    width: 48px;
+    height: 40px;
+    color: var(--color-accent);
+    opacity: 0.75;
+    margin-bottom: 1.25rem;
+  }
+
+  .pending-title {
+    margin: 0 0 0.6rem;
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    line-height: 1.3;
+    color: var(--color-text);
+  }
+
+  .pending-note {
+    margin: 0;
+    max-width: 32ch;
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+
+  .artist-image__pending code {
+    background: var(--color-accent-light);
+    color: var(--color-accent-dark);
+    padding: 0.12rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.85em;
+    word-break: break-all;
+  }
+
+  .artist-image img {
+    display: block;
+    width: 100%;
+    height: clamp(360px, 55vw, 620px);
+    object-fit: cover;
+  }
+
+  .clinical-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  @media (min-width: 900px) {
+    .clinical-grid {
+      grid-template-columns: 1.4fr 1fr;
+      gap: 4rem;
+    }
+  }
+
+  .clinical-grid h3 {
+    font-weight: 400;
+    font-size: 1.9rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .clinical-bio {
+    font-size: 1.02rem;
+    line-height: 1.85;
+    color: var(--color-text-muted);
+  }
+
+  .clinical-grid .credentials {
+    margin: 0;
+    background-color: var(--color-surface);
+  }
+
+  .clinical-grid .credentials h3 {
+    font-size: 1.15rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .derm-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  @media (min-width: 900px) {
+    .derm-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+    }
+  }
+
+  .derm-grid h3 {
+    font-weight: 400;
+    font-size: 1.9rem;
+    margin-bottom: 0.5rem;
   }
 
   .artist-bio h2 {
-    color: var(--color-accent-dark);
+    font-weight: 300;
     margin-bottom: 0.5rem;
   }
-  
-  .artist-bio .subtitle {
-    font-size: 1.1rem;
-    font-weight: 500;
-    margin-bottom: 2.5rem;
-    display: block;
-    letter-spacing: 0.05em;
+
+  .artist-role {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
-  }
-  
-  .bio-content {
-    font-size: 1.1rem;
-    line-height: 1.8;
-    margin-bottom: 3rem;
+    color: var(--color-accent);
+    margin-bottom: 2.5rem;
   }
 
-  .bio-content p {
-    margin-bottom: 1.5rem;
+  .bio-content {
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: var(--color-text-muted);
   }
-  
-  .credentials-box {
+
+  .bio-content strong {
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  .credentials {
+    margin: 3rem 0;
     padding: 2rem;
     border-radius: var(--radius-md);
-    border-left: 4px solid var(--color-accent);
-  }
-  
-  .credentials-box h4 {
-    margin-bottom: 1rem;
-    color: var(--color-accent-dark);
-  }
-  
-  .credentials-box ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .credentials-box li {
-    position: relative;
-    padding-left: 1.5rem;
-    margin-bottom: 0.8rem;
-    color: var(--color-text);
-  }
-  
-  .credentials-box li::before {
-    content: '✦';
-    position: absolute;
-    left: 0;
-    color: var(--color-accent);
-  }
-  
-  .portfolio-section {
-    padding: 4rem 0 8rem;
+    border-left: 2px solid var(--color-accent);
     background-color: var(--color-surface-offset);
   }
-  
+
+  .credentials h3 {
+    font-size: 1.15rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .credentials li {
+    color: var(--color-text-muted);
+  }
+
+  .artist-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin-top: 0.5rem;
+  }
+
   .portfolio-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 2rem;
   }
-  
+
   @media (min-width: 768px) {
     .portfolio-grid {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(280px, 420px));
+      justify-content: center;
     }
   }
-  
+
   .portfolio-item {
+    margin: 0;
     border-radius: var(--radius-md);
     overflow: hidden;
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-card);
     display: flex;
     flex-direction: column;
   }
-  
+
   .portfolio-img {
     width: 100%;
-    height: 350px;
+    height: 340px;
     object-fit: cover;
   }
-  
-  .portfolio-info {
+
+  .portfolio-item figcaption {
     padding: 1.5rem;
-    background-color: var(--color-surface);
   }
-  
-  .portfolio-info h4 {
-    margin-bottom: 0.5rem;
+
+  .portfolio-item h4 {
+    margin-bottom: 0.35rem;
+  }
+
+  .portfolio-item p {
+    margin: 0;
+    font-size: 0.9rem;
   }
 </style>

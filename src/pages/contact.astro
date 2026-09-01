@@ -1,168 +1,344 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import SectionHeading from '../components/SectionHeading.astro';
+import { getCollection } from 'astro:content';
+
+import { categories } from '../data/categories';
+import { site } from '../data/site';
+
+// The service dropdown is built from the treatments collection so it can never
+// drift out of sync with what the studio actually offers. With ten treatments
+// it is grouped by family — a flat list of ten is where a select box stops
+// being scannable.
+const treatments = await getCollection('treatments');
+
+const grouped = categories
+  .map(category => ({
+    category,
+    items: treatments
+      .filter(t => t.data.category === category.id)
+      .sort((a, b) => a.data.order - b.data.order),
+  }))
+  .filter(group => group.items.length > 0);
+
+// Anything gated behind screening gets called out on the form itself, so the
+// requirement is known before someone plans a date around it.
+const screened = treatments.filter(t => t.data.medical);
+
+const hours = site.hours;
 ---
 
-<Layout title="Contact Us | Aura Blush Studio">
-  <div class="page-header">
-    <SectionHeading title="Get In Touch" subtitle="Contact & Booking" />
-    <p class="header-description">Ready to enhance your natural beauty? Send us a booking inquiry or visit our studio.</p>
-  </div>
+<Layout
+  title="Contact Us | Aura Blush Studio"
+  description="Book a consultation at Aura Blush Studio, Sigra, Varanasi. WhatsApp, call, or send a booking enquiry."
+>
+  <header class="page-header">
+    <span class="page-header__eyebrow">Contact &amp; Booking</span>
+    <h1>Get in touch</h1>
+    <div class="page-header__rule"></div>
+    <p class="page-header__lede">
+      Consultations are free and carry no obligation to book on the day. Tell us what
+      you're after — and what you're taking — and we'll come back within 24 hours with an
+      honest answer about whether we can help.
+    </p>
+  </header>
 
-  <section class="contact-section">
+  <section class="section">
     <div class="container">
       <div class="contact-grid">
-        <div class="contact-info">
-          <div class="info-card glass-panel">
-            <h3>Visit The Studio</h3>
-            <p>123 Beauty Lane, Suite 100<br/>New York, NY 10001</p>
-            
-            <h3 class="mt">Get In Touch</h3>
-            <p><a href="mailto:hello@aurablush.com">hello@aurablush.com</a><br/><a href="tel:+12125551234">(212) 555-1234</a></p>
-            
-            <h3 class="mt">Opening Hours</h3>
+        <aside class="contact-info">
+          <div class="info-block">
+            <h2>Visit the studio</h2>
+            <p class="text-muted">
+              {site.address.line1 && <>{site.address.line1}<br /></>}
+              {site.address.line2}<br />{site.address.state}
+            </p>
+            {site.address.landmark
+              ? <p class="landmark text-muted">{site.address.landmark}</p>
+              : <p class="landmark address-pending">
+                  We're in Sigra, central Varanasi. Full street address and the
+                  nearest landmark to follow — message us on Instagram in the
+                  meantime and we'll guide you in.
+                </p>}
+          </div>
+
+          <div class="info-block">
+            <h2>Reach us</h2>
+            {(site.whatsapp.display || site.phone.display || site.email) && (
+              <p>
+                {site.whatsapp.display && <><a href={site.whatsapp.href}>WhatsApp {site.whatsapp.display}</a><br /></>}
+                {site.phone.display && <><a href={site.phone.href}>Call {site.phone.display}</a><br /></>}
+                {site.email && <a href={`mailto:${site.email}`}>{site.email}</a>}
+              </p>
+            )}
+
+            <a href={site.social.instagram.href} class="ig-link" target="_blank" rel="noopener noreferrer">
+              <svg class="ig-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="2.5" y="2.5" width="19" height="19" rx="5.5"
+                      fill="none" stroke="currentColor" stroke-width="1.8" />
+                <circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.8" />
+                <circle cx="17.4" cy="6.6" r="1.2" fill="currentColor" />
+              </svg>
+              <span>
+                <strong>{site.social.instagram.handle}</strong>
+                <em>Message us on Instagram</em>
+              </span>
+            </a>
+            <p class="landmark text-muted">
+              {site.whatsapp.display
+                ? <>WhatsApp is the fastest way to reach us and the one we answer soonest.</>
+                : <>A direct line is coming soon. Until then, an Instagram DM or the form below is the way to reach us — both go straight to Roshni.</>}
+            </p>
+          </div>
+
+          <div class="info-block">
+            <h2>Languages &amp; payment</h2>
+            <p class="text-muted">{site.languages}.</p>
+            <p class="text-muted">{site.payments}</p>
+            <p class="landmark text-muted">{site.gstNote}</p>
+          </div>
+
+          <div class="info-block">
+            <h2>Visiting Varanasi?</h2>
+            <p class="text-muted">
+              Tell us your dates when you write. Some treatments do not fit a short trip and
+              we would rather say so than take the booking:
+            </p>
+            <ul class="visitor-list text-muted">
+              <li><strong>Laser</strong> needs a patch test 24–48 hours before the first session — two visits, minimum.</li>
+              <li><strong>Mole removal</strong> needs a dermatologist's assessment on an earlier day, then the removal.</li>
+              <li><strong>Permanent makeup</strong> flakes for 7–10 days and cannot get wet at first. Not one for the day before the ghats.</li>
+              <li><strong>Facials</strong> — glass skin, brightening — are the ones that work beautifully in a single visit.</li>
+            </ul>
+            <p class="landmark text-muted">
+              And whatever you book, the sun here will find you. We will send you out with
+              sunscreen and mean it.
+            </p>
+          </div>
+
+          <div class="info-block">
+            <h2>Opening hours</h2>
             <ul class="hours-list">
-              <li><span>Tuesday - Friday</span><span>10:00 AM - 7:00 PM</span></li>
-              <li><span>Saturday</span><span>9:00 AM - 5:00 PM</span></li>
-              <li><span>Sunday - Monday</span><span>Closed</span></li>
+              {hours.map(row => (
+                <li><span>{row.days}</span><span>{row.time}</span></li>
+              ))}
             </ul>
           </div>
-          
-          <div class="map-mock glass-panel">
-            <div class="map-pin"></div>
-            <p>Interactive Map Placeholder</p>
-          </div>
-        </div>
+        </aside>
 
-        <div class="booking-form-container glass-panel">
-          <h3>Request an Appointment</h3>
-          <p class="text-muted small">Fill out the form below and our concierge will contact you within 24 hours to confirm your date and time.</p>
-          
-          <form class="booking-form" onsubmit="event.preventDefault(); alert('Booking request sent successfully!');">
+        <div class="booking-form-container">
+          <h2>Request an appointment</h2>
+          {site.formAccessKey ? (
+            <p class="form-intro text-muted">
+              Fill this out and we'll come back to you to confirm a date and time.
+            </p>
+          ) : (
+            <p class="form-offline">
+              <strong>Online booking isn't live yet.</strong> The quickest way to reach
+              us today is a DM on <a href={site.social.instagram.href} target="_blank" rel="noopener noreferrer">Instagram</a> —
+              it goes straight to Roshni.
+            </p>
+          )}
+
+          <form class="booking-form" novalidate>
             <div class="form-group">
-              <label for="name">Full Name</label>
-              <input type="text" id="name" required placeholder="Jane Doe" />
+              <label for="name">Full name</label>
+              <input type="text" id="name" name="name" required autocomplete="name" placeholder="Your name" />
             </div>
-            
+
             <div class="form-row">
               <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" required placeholder="jane@example.com" />
+                <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com" />
               </div>
               <div class="form-group">
-                <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" required placeholder="(555) 000-0000" />
+                <label for="phone">Phone number</label>
+                <input type="tel" id="phone" name="phone" required autocomplete="tel" placeholder="Your phone number" />
               </div>
             </div>
-            
+
             <div class="form-group">
-              <label for="service">Interested Service</label>
-              <select id="service" required>
-                <option value="" disabled selected>Select a treatment...</option>
-                <option value="microblading">Nano Microblading</option>
-                <option value="lip-blush">Lip Blush Tattoo</option>
-                <option value="lash-lift">Lash Lift & Tint</option>
-                <option value="other">Other / Consultation</option>
+              <label for="service">Treatment of interest</label>
+              <select id="service" name="service" required>
+                <option value="" disabled selected>Select a treatment…</option>
+                {grouped.map(({ category, items }) => (
+                  <optgroup label={category.label}>
+                    {items.map(t => (
+                      <option value={t.id}>{t.data.title}</option>
+                    ))}
+                  </optgroup>
+                ))}
+                <option value="consultation">Other / general consultation</option>
               </select>
+              {screened.length > 0 && (
+                <p class="field-note">
+                  Laser, pigmentation, under-eye and mole services need a consultation and a
+                  documented skin assessment before treatment — for laser that means a patch
+                  test 24–48 hours ahead, and for moles a dermatologist's written clearance.
+                  We'll book that step first.
+                </p>
+              )}
             </div>
-            
+
             <div class="form-group">
-              <label for="message">Additional Notes or Questions</label>
-              <textarea id="message" rows="4" placeholder="Are you looking to correct previous PMU work? Let us know here..."></textarea>
+              <label for="message">Notes or questions</label>
+              <textarea id="message" name="message" rows="4" placeholder="Tell us what you're hoping to change. Any medication (blood thinners, isotretinoin, photosensitisers), pregnancy, recent tanning, or previous work you want corrected — all of it changes what we can safely offer."></textarea>
             </div>
-            
-            <button type="submit" class="btn-submit">Send Booking Request</button>
+
+            <button type="submit" class="btn-primary btn-submit">Send booking request</button>
+            <p class="form-status" role="status" aria-live="polite"></p>
           </form>
         </div>
       </div>
     </div>
   </section>
+
+  <script is:inline define:vars={{ formKey: site.formAccessKey }}>
+    // Real submission via Web3Forms when an access key is configured. With no
+    // key, the form must NOT claim success — it tells the truth and points at
+    // Instagram, because a booking request that goes nowhere is worse than no
+    // form at all.
+    (() => {
+      const form = document.querySelector('.booking-form');
+      if (!form) return;
+      const status = form.querySelector('.form-status');
+      const button = form.querySelector('.btn-submit');
+
+      const say = (msg, state) => {
+        status.textContent = msg;
+        status.classList.add('is-visible');
+        status.dataset.state = state;
+      };
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+
+        if (!formKey) {
+          say(
+            'Online booking isn\u2019t connected yet \u2014 this form can\u2019t reach us. ' +
+            'Please send us a DM on Instagram and we\u2019ll get straight back to you.',
+            'error'
+          );
+          return;
+        }
+
+        const original = button.textContent;
+        button.disabled = true;
+        button.textContent = 'Sending\u2026';
+        say('', 'pending');
+
+        try {
+          const body = new FormData(form);
+          body.append('access_key', formKey);
+          body.append('subject', 'New booking request \u2014 Aura Blush');
+          const res = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            body,
+          });
+          const data = await res.json();
+          if (!res.ok || !data.success) throw new Error(data.message || 'Submission failed');
+
+          const name = form.querySelector('#name').value.trim();
+          say(
+            'Thanks' + (name ? ', ' + name.split(' ')[0] : '') +
+            ' \u2014 your request is in. We\u2019ll come back to you within 24 hours.',
+            'success'
+          );
+          form.reset();
+        } catch (err) {
+          say(
+            'Something went wrong sending that. Please try again, or send us a DM ' +
+            'on Instagram and we\u2019ll pick it up there.',
+            'error'
+          );
+        } finally {
+          button.disabled = false;
+          button.textContent = original;
+        }
+      });
+    })();
+  </script>
 </Layout>
 
 <style>
-  .page-header {
-    padding: 6rem 1.5rem 3rem;
-    text-align: center;
-    background-color: var(--color-surface-offset);
-  }
-
-  .header-description {
-    max-width: 600px;
-    margin: 0 auto;
-    color: var(--color-text-muted);
-    font-size: 1.1rem;
-  }
-  
-  .contact-section {
-    padding: 5rem 0;
-  }
-  
-  .container {
-    max-width: var(--max-width-wide);
-    margin: 0 auto;
-    padding: 0 1.5rem;
-  }
-  
   .contact-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 3rem;
+    align-items: start;
   }
-  
+
   @media (min-width: 900px) {
     .contact-grid {
-      grid-template-columns: 1fr 1.5fr;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 4.5rem;
     }
   }
 
-  .info-card, .booking-form-container, .map-mock {
-    padding: 2.5rem;
-    border-radius: var(--radius-md);
+  .info-block {
+    padding-bottom: 2rem;
     margin-bottom: 2rem;
+    border-bottom: 1px solid var(--color-divider);
   }
 
-  h3 {
-    color: var(--color-accent-dark);
+  .info-block:last-child {
+    border-bottom: 0;
+    margin-bottom: 0;
+  }
+
+  .info-block h2 {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    font-family: var(--font-body);
     margin-bottom: 1rem;
   }
-  
-  .mt {
-    margin-top: 2rem;
+
+  .info-block p {
+    margin: 0;
+    line-height: 1.8;
   }
 
   .hours-list {
     list-style: none;
     padding: 0;
+    margin: 0;
   }
-  
+
   .hours-list li {
     display: flex;
     justify-content: space-between;
-    padding: 0.5rem 0;
+    gap: 1rem;
+    padding: 0.6rem 0;
     border-bottom: 1px dashed var(--color-divider);
     color: var(--color-text-muted);
+    font-size: 0.95rem;
   }
 
-  .map-mock {
-    height: 250px;
-    background: linear-gradient(135deg, var(--color-surface-offset), var(--color-divider));
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-text-muted);
-  }
-  
-  .map-pin {
-    width: 20px;
-    height: 20px;
-    background-color: var(--color-accent);
-    border-radius: 50%;
-    margin-bottom: 1rem;
+  .hours-list li:last-child {
+    border-bottom: 0;
   }
 
-  .small {
-    margin-bottom: 2rem;
+  .booking-form-container {
+    padding: clamp(1.75rem, 4vw, 3rem);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-divider);
+    box-shadow: var(--shadow-card);
+  }
+
+  .booking-form-container h2 {
+    font-weight: 300;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-intro {
+    margin-bottom: 2.5rem;
   }
 
   .booking-form {
@@ -170,13 +346,13 @@ import SectionHeading from '../components/SectionHeading.astro';
     flex-direction: column;
     gap: 1.5rem;
   }
-  
+
   .form-row {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
-  
+
   @media (min-width: 600px) {
     .form-row {
       grid-template-columns: 1fr 1fr;
@@ -188,44 +364,162 @@ import SectionHeading from '../components/SectionHeading.astro';
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   label {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  /* Sits under the treatment select, explaining the screening step before
+     someone plans a date around a booking we can't take yet. */
+  .field-note {
+    margin: 0.7rem 0 0;
+    font-size: 0.82rem;
+    line-height: 1.65;
+    color: var(--color-text-muted);
+  }
+
+  /* Visible-but-calm marker: the address is genuinely not set yet, and an
+     obviously-missing address is better than an invented one. */
+  .address-pending {
+    color: var(--color-text-muted);
+    border-left: 2px solid var(--color-accent);
+    padding-left: 0.85rem;
+  }
+
+  /* Instagram is currently the only live contact channel, so it gets a real
+     target rather than a text link sitting among absent ones. */
+  .ig-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.85rem 1.25rem;
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .ig-link:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card);
+  }
+
+  .ig-link .ig-icon {
+    width: 26px;
+    height: 26px;
+    flex: none;
+    color: var(--color-accent);
+  }
+
+  .ig-link span {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .ig-link strong {
     font-weight: 500;
     color: var(--color-text);
   }
-  
+
+  .ig-link em {
+    font-style: normal;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+
+  /* Shown in place of the usual intro while no form endpoint is configured, so
+     nobody fills in the whole form before finding out it cannot send. */
+  .form-offline {
+    margin: 0 0 1.75rem;
+    padding: 0.95rem 1.15rem;
+    border: 1px solid var(--color-divider);
+    border-left: 3px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-accent-light);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--color-text-muted);
+  }
+
+  .form-offline strong {
+    display: block;
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  .form-status[data-state='error'] {
+    color: var(--color-accent-hover);
+  }
+
+  .form-status[data-state='success'] {
+    color: var(--color-text);
+  }
+
+  .btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .landmark {
+    font-size: 0.85rem;
+    line-height: 1.65;
+  }
+
+  .visitor-list {
+    margin: 0 0 1rem;
+    padding-left: 1.1rem;
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  .visitor-list li {
+    margin-bottom: 0.5rem;
+  }
+
+  .visitor-list strong {
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
   input, select, textarea {
-    padding: 0.8rem 1rem;
+    padding: 0.85rem 1rem;
     border: 1px solid var(--color-divider);
     border-radius: var(--radius-sm);
     background-color: var(--color-bg);
     color: var(--color-text);
     font-family: var(--font-body);
     font-size: 1rem;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
-  
+
   input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-light);
   }
-  
+
   .btn-submit {
-    background-color: var(--color-accent);
-    color: white;
     border: none;
-    padding: 1rem;
-    border-radius: var(--radius-full);
-    font-size: 1rem;
-    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s, transform 0.2s;
-    margin-top: 1rem;
+    font-family: var(--font-body);
+    margin-top: 0.5rem;
   }
-  
-  .btn-submit:hover {
-    background-color: var(--color-accent-hover);
-    transform: translateY(-2px);
+
+  .form-status {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--color-accent-dark);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .form-status.is-visible {
+    opacity: 1;
   }
 </style>

@@ -22,3 +22,12 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# lets-scroll skill source (nested clone — installed to ~/.claude/skills)
+lets-scroll/
+
+# generated flight media (rendered per-project, never committed)
+public/world/vid/
+public/world/*.jpg
+world/renders/
+world/frames/
